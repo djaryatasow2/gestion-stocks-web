@@ -1,0 +1,49 @@
+$rouge: #7a1f2b;
+$or: #b8924a;
+$encre: #1a1a1a;
+$gris-texte: #6b6660;
+$vert: #4a7c59;
+
+.alertes-page { padding: 2.5rem 3rem; font-family: 'Inter', sans-serif; }
+
+.page-header {
+  margin-bottom: 2.5rem;
+  .kicker { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: $or; }
+  h1 { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 500; color: $encre; margin: 6px 0 4px; }
+  .subtitle { font-size: 13px; color: $gris-texte; margin: 0; }
+}
+
+.section {
+  margin-bottom: 2.5rem;
+  h2 { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 500; color: $encre; margin: 0 0 1rem; }
+}
+
+.alertes-list { display: flex; flex-direction: column; gap: 12px; }
+
+.alerte-card {
+  background: white; border: 1px solid #ece6dc; border-left: 3px solid $or;
+  padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+  &.rupture { border-left-color: $rouge; }
+  &.treated { opacity: 0.6; border-left-color: $vert; }
+}
+
+.alerte-info {
+  display: flex; flex-direction: column; gap: 4px; flex: 1;
+  .alerte-article { font-size: 15px; font-weight: 500; color: $encre; }
+  .alerte-entrepot { font-size: 12px; color: $gris-texte; }
+}
+
+.alerte-niveau {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
+  .niveau-value { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: $rouge; }
+  .niveau-label { font-size: 11px; color: $gris-texte; text-transform: uppercase; letter-spacing: .04em; }
+}
+
+.btn-treat {
+  background: none; border: 1px solid #ddd6cc; color: $gris-texte; padding: 9px 16px; font-size: 12.5px; cursor: pointer; white-space: nowrap;
+  &:hover { border-color: $vert; color: $vert; }
+}
+
+.treated-badge { font-size: 12px; color: $vert; font-weight: 500; }
+
+.empty-state { font-size: 14px; color: $gris-texte; text-align: center; padding: 2rem; background: white; border: 1px solid #ece6dc; }

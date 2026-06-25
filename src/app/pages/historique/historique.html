@@ -1,0 +1,47 @@
+<div class="historique-page">
+  <div class="page-header">
+    <span class="kicker">Traçabilité</span>
+    <h1>Historique des mouvements</h1>
+    <p class="subtitle">{{ filteredMouvements.length }} mouvement(s) enregistré(s)</p>
+  </div>
+
+  <div class="filters">
+    <input type="text" placeholder="Rechercher un article, entrepôt, utilisateur..." [(ngModel)]="searchTerm" />
+    <select [(ngModel)]="filterType">
+      <option value="tous">Tous les mouvements</option>
+      <option value="entree">Entrées</option>
+      <option value="sortie">Sorties</option>
+      <option value="transfert">Transferts</option>
+    </select>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Article</th>
+          <th>Type</th>
+          <th>Quantité</th>
+          <th>Entrepôt</th>
+          <th>Utilisateur</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of filteredMouvements">
+          <td class="date">{{ m.date }}</td>
+          <td class="nom">{{ m.article }}</td>
+          <td>
+            <span class="badge" [ngClass]="m.type">{{ getTypeLabel(m.type) }}</span>
+          </td>
+          <td>{{ m.quantite }}</td>
+          <td>{{ m.entrepot }}</td>
+          <td class="user">{{ m.utilisateur }}</td>
+        </tr>
+        <tr *ngIf="filteredMouvements.length === 0">
+          <td colspan="6" class="empty">Aucun mouvement trouvé</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,148 @@
+$rouge: #7a1f2b;
+$or: #b8924a;
+$encre: #1a1a1a;
+$gris-texte: #6b6660;
+$vert: #4a7c59;
+$bleu: #3b6ea5;
+
+.historique-page {
+  padding: 2.5rem 3rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+
+  .kicker {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: $or;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 500;
+    color: $encre;
+    margin: 6px 0 4px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: $gris-texte;
+    margin: 0;
+  }
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+
+  input {
+    flex: 1;
+    max-width: 380px;
+    padding: 12px 16px;
+    border: 1px solid #ece6dc;
+    background: white;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+
+    &:focus {
+      outline: none;
+      border-color: $rouge;
+    }
+  }
+
+  select {
+    padding: 12px 16px;
+    border: 1px solid #ece6dc;
+    background: white;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: $encre;
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
+      border-color: $rouge;
+    }
+  }
+}
+
+.table-container {
+  background: white;
+  border: 1px solid #ece6dc;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #faf8f5;
+  border-bottom: 1px solid #ece6dc;
+}
+
+th {
+  text-align: left;
+  padding: 14px 20px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: $gris-texte;
+  font-weight: 500;
+}
+
+td {
+  padding: 16px 20px;
+  font-size: 14px;
+  color: $encre;
+  border-bottom: 1px solid #f4f0e9;
+}
+
+.date {
+  color: $gris-texte;
+  font-size: 13px;
+}
+
+.nom {
+  font-weight: 500;
+}
+
+.user {
+  color: $gris-texte;
+  font-size: 13px;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.empty {
+  text-align: center;
+  color: $gris-texte;
+  padding: 3rem;
+}
+
+.badge {
+  font-size: 12px;
+  padding: 4px 12px;
+  font-weight: 500;
+
+  &.entree {
+    background: rgba(74, 124, 89, 0.1);
+    color: $vert;
+  }
+  &.sortie {
+    background: rgba(122, 31, 43, 0.1);
+    color: $rouge;
+  }
+  &.transfert {
+    background: rgba(59, 110, 165, 0.1);
+    color: $bleu;
+  }
+}

@@ -1,0 +1,19 @@
+<div class="rapports-page">
+  <div class="page-header">
+    <span class="kicker">Exportation</span>
+    <h1>Rapports</h1>
+    <p class="subtitle">Générez et exportez vos rapports d'activité</p>
+  </div>
+
+  <div class="rapports-grid">
+    <div class="rapport-card" *ngFor="let r of typesRapports">
+      <h3>{{ r.titre }}</h3>
+      <p>{{ r.description }}</p>
+      <span class="last-gen">Dernière génération : {{ r.derniereGeneration }}</span>
+      <div class="rapport-actions">
+        <button class="btn-export" (click)="exporterPDF(r)">Exporter PDF</button>
+        <button class="btn-export secondary" (click)="exporterExcel(r)">Exporter Excel</button>
+      </div>
+    </div>
+  </div>
+</div>

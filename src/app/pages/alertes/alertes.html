@@ -1,0 +1,38 @@
+<div class="alertes-page">
+  <div class="page-header">
+    <span class="kicker">Surveillance</span>
+    <h1>Alertes de seuil minimum</h1>
+    <p class="subtitle">{{ alertesActives.length }} alerte(s) active(s)</p>
+  </div>
+
+  <div class="section">
+    <h2>Alertes actives</h2>
+    <div class="alertes-list">
+      <div class="alerte-card" *ngFor="let a of alertesActives" [class.rupture]="isRupture(a)">
+        <div class="alerte-info">
+          <span class="alerte-article">{{ a.article }}</span>
+          <span class="alerte-entrepot">{{ a.entrepot }}</span>
+        </div>
+        <div class="alerte-niveau">
+          <span class="niveau-value">{{ a.niveauActuel }} / {{ a.seuilMinimum }}</span>
+          <span class="niveau-label">{{ isRupture(a) ? 'Rupture de stock' : 'Stock bas' }}</span>
+        </div>
+        <button class="btn-treat" (click)="marquerTraitee(a)">Marquer comme traitée</button>
+      </div>
+      <p class="empty-state" *ngIf="alertesActives.length === 0">Aucune alerte active.</p>
+    </div>
+  </div>
+
+  <div class="section" *ngIf="alertesTraitees.length > 0">
+    <h2>Alertes traitées</h2>
+    <div class="alertes-list">
+      <div class="alerte-card treated" *ngFor="let a of alertesTraitees">
+        <div class="alerte-info">
+          <span class="alerte-article">{{ a.article }}</span>
+          <span class="alerte-entrepot">{{ a.entrepot }}</span>
+        </div>
+        <span class="treated-badge">Traitée</span>
+      </div>
+    </div>
+  </div>
+</div>

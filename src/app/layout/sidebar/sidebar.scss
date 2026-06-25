@@ -1,0 +1,74 @@
+$rouge: #7a1f2b;
+$rouge-fonce: #5c1521;
+$or: #b8924a;
+$encre: #1a1a1a;
+
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: $rouge-fonce;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 0;
+  font-family: 'Inter', sans-serif;
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 1.5rem;
+  margin-bottom: 2.5rem;
+
+  .brand-mark {
+    width: 22px;
+    height: 22px;
+    border: 1px solid $or;
+  }
+
+  .brand-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    color: white;
+    letter-spacing: 0.06em;
+
+    em {
+      color: $or;
+      font-style: normal;
+    }
+  }
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  padding: 12px 1.5rem;
+  font-size: 14px;
+  border-left: 2px solid transparent;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  &.active {
+    color: $or;
+    border-left-color: $or;
+    background: rgba(184, 146, 74, 0.08);
+  }
+}
+
+.profile-link {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}

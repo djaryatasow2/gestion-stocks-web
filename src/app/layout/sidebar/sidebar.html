@@ -1,0 +1,12 @@
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-mark"></div>
+    <span class="brand-text">SMART<em>MS</em></span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a *ngFor="let item of menuItems" [routerLink]="item.route" routerLinkActive="active" class="nav-link">{{ item.label }}</a>
+  </nav>
+
+  <a routerLink="/profile" routerLinkActive="active" class="nav-link profile-link">Mon profil</a>
+</aside>

@@ -1,0 +1,47 @@
+<div class="previsions-page">
+  <div class="page-header">
+    <span class="kicker">Anticipation</span>
+    <h1>Prévisions de stock</h1>
+    <p class="subtitle">Basées sur l'historique des mouvements</p>
+  </div>
+
+  <div class="panel chart-panel">
+    <h2>Tendance de consommation globale</h2>
+    <div class="chart">
+      <div class="chart-bar-wrapper" *ngFor="let t of tendanceMensuelle">
+        <div class="chart-bar" [style.height.%]="(t.valeur / getMaxValeur()) * 100"></div>
+        <span class="chart-label">{{ t.mois }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Estimation de rupture par article</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Article</th>
+            <th>Entrepôt</th>
+            <th>Stock actuel</th>
+            <th>Consommation / jour</th>
+            <th>Rupture estimée</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of previsions">
+            <td class="nom">{{ p.article }}</td>
+            <td>{{ p.entrepot }}</td>
+            <td>{{ p.stockActuel }}</td>
+            <td>{{ p.consommationMoyenne }}</td>
+            <td>
+              <span class="badge" [ngClass]="getUrgenceClass(p.joursAvantRupture)">
+                {{ p.joursAvantRupture }} jour(s)
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

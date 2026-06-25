@@ -1,0 +1,43 @@
+<header class="navbar">
+  <div class="navbar-left">
+    <span class="navbar-title">Tableau de bord</span>
+  </div>
+  <div class="navbar-right">
+
+    <div class="notif-wrapper">
+      <button class="icon-btn" (click)="toggleNotifications()">
+        <span class="bell-icon">🔔</span>
+        <span class="badge-count" *ngIf="notifService.nombreNonLus() > 0">
+          {{ notifService.nombreNonLus() }}
+        </span>
+      </button>
+
+      <div class="notif-panel" *ngIf="showNotifications">
+        <div class="notif-header">
+          <span>Notifications</span>
+          <span class="notif-count">{{ notifService.notifications().length }}</span>
+        </div>
+        <div class="notif-list">
+          <div class="notif-item" *ngFor="let n of notifService.notifications()"
+               [class.non-lu]="!n.lu"
+               [class.alerte]="n.type === 'alerte'">
+            <span class="notif-msg">{{ n.message }}</span>
+            <span class="notif-time">{{ n.date }}</span>
+          </div>
+          <div class="notif-empty" *ngIf="notifService.notifications().length === 0">
+            Aucune notification
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="user-chip">
+      <div class="avatar">{{ initiales }}</div>
+      <div class="user-info">
+        <span class="user-name">{{ authService.getNom() }}</span>
+        <span class="user-role">{{ authService.getRole() }}</span>
+      </div>
+    </div>
+    <button class="logout-btn" (click)="logout()">Déconnexion</button>
+  </div>
+</header>

@@ -1,0 +1,74 @@
+<div class="articles-page">
+  <div class="page-header">
+    <div>
+      <span class="kicker">Inventaire</span>
+      <h1>Gestion des articles</h1>
+    </div>
+    <button class="btn-primary" (click)="openAddModal()">+ Ajouter</button>
+  </div>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Categorie</th>
+          <th>Quantite</th>
+          <th>Statut</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let a of filteredArticles">
+          <td>{{ a.nom }}</td>
+          <td>{{ a.categorie }}</td>
+          <td>{{ a.quantite }}</td>
+          <td>
+            <span class="badge" [ngClass]="getStatut(a)">
+              {{ getStatutLabel(a) }}
+            </span>
+          </td>
+          <td>
+            <button (click)="openEditModal(a)">Modifier</button>
+            <button (click)="confirmDelete(a)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h2>Article</h2>
+    <div class="form-field">
+      <label>Nom</label>
+      <input type="text" [(ngModel)]="currentArticle.nom" />
+    </div>
+    <div class="form-field">
+      <label>Categorie</label>
+      <input type="text" [(ngModel)]="currentArticle.categorie" />
+    </div>
+    <div class="form-field">
+      <label>Quantite</label>
+      <input type="number" [(ngModel)]="currentArticle.quantite" />
+    </div>
+    <div class="form-field">
+      <label>Seuil minimum</label>
+      <input type="number" [(ngModel)]="currentArticle.seuilMinimum" />
+    </div>
+    <div class="modal-actions">
+      <button (click)="closeModal()">Annuler</button>
+      <button (click)="saveArticle()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+  <div class="modal small" (click)="$event.stopPropagation()">
+    <h2>Supprimer ?</h2>
+    <div class="modal-actions">
+      <button (click)="cancelDelete()">Annuler</button>
+      <button (click)="deleteArticle()">Supprimer</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+$rouge: #7a1f2b;
+$rouge-fonce: #5c1521;
+$or: #b8924a;
+$encre: #1a1a1a;
+$gris-texte: #6b6660;
+
+.not-found-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: 'Inter', sans-serif;
+  padding: 2rem;
+}
+
+.error-code {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 96px;
+  color: $or;
+  line-height: 1;
+}
+
+h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
+  font-weight: 500;
+  color: $encre;
+  margin: 1rem 0 8px;
+}
+
+p {
+  font-size: 14px;
+  color: $gris-texte;
+  margin: 0 0 2rem;
+}
+
+.btn-primary {
+  background: $rouge;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    background: $rouge-fonce;
+  }
+}

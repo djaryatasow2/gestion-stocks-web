@@ -1,0 +1,89 @@
+<div class="utilisateurs-page">
+  <div class="page-header">
+    <div>
+      <span class="kicker">Accès</span>
+      <h1>Utilisateurs</h1>
+      <p class="subtitle">{{ utilisateurs.length }} utilisateur(s)</p>
+    </div>
+    <button class="btn-primary" (click)="openAddModal()">+ Ajouter un utilisateur</button>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Entreprise</th>
+          <th>Statut</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let u of utilisateurs">
+          <td class="nom">{{ u.nom }}</td>
+          <td class="email">{{ u.email }}</td>
+          <td><span class="role-badge">{{ u.role }}</span></td>
+          <td>{{ u.entreprise }}</td>
+          <td>
+            <span class="badge" [class.inactive]="!u.actif">{{ u.actif ? 'Actif' : 'Inactif' }}</span>
+          </td>
+          <td class="actions">
+            <button class="btn-icon" (click)="openEditModal(u)">Modifier</button>
+            <button class="btn-icon delete" (click)="confirmDelete(u)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <span class="kicker">{{ isEditMode ? 'Modification' : 'Nouvel utilisateur' }}</span>
+    <h2>{{ isEditMode ? "Modifier l'utilisateur" : 'Ajouter un utilisateur' }}</h2>
+
+    <div class="form-field">
+      <label>Nom complet</label>
+      <input type="text" [(ngModel)]="currentUtilisateur.nom" />
+    </div>
+    <div class="form-field">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="currentUtilisateur.email" />
+    </div>
+    <div class="form-field">
+      <label>Rôle</label>
+      <select [(ngModel)]="currentUtilisateur.role">
+        <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Entreprise</label>
+      <input type="text" [(ngModel)]="currentUtilisateur.entreprise" />
+    </div>
+    <div class="form-field checkbox-field">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="currentUtilisateur.actif" />
+        <span>Compte actif</span>
+      </label>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="closeModal()">Annuler</button>
+      <button class="btn-primary" (click)="saveUtilisateur()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+  <div class="modal small" (click)="$event.stopPropagation()">
+    <span class="kicker">Confirmation</span>
+    <h2>Supprimer cet utilisateur ?</h2>
+    <p class="confirm-text">"{{ utilisateurToDelete?.nom }}" sera définitivement supprimé.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="cancelDelete()">Annuler</button>
+      <button class="btn-danger" (click)="deleteUtilisateur()">Supprimer</button>
+    </div>
+  </div>
+</div>

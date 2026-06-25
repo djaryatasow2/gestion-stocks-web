@@ -1,0 +1,73 @@
+<div class="entrepots-page">
+  <div class="page-header">
+    <div>
+      <span class="kicker">Logistique</span>
+      <h1>Entrepôts</h1>
+      <p class="subtitle">{{ entrepots.length }} entrepôt(s)</p>
+    </div>
+    <button class="btn-primary" (click)="openAddModal()">+ Ajouter un entrepôt</button>
+  </div>
+
+  <div class="entrepots-grid">
+    <div class="entrepot-card" *ngFor="let e of entrepots">
+      <div class="entrepot-top">
+        <h3>{{ e.nom }}</h3>
+        <div class="entrepot-actions">
+          <button (click)="openEditModal(e)">Modifier</button>
+          <button class="delete" (click)="confirmDelete(e)">Supprimer</button>
+        </div>
+      </div>
+      <p class="localisation">{{ e.localisation }}</p>
+
+      <div class="occupation-bar">
+        <div class="bar-track">
+          <div class="bar-fill" [style.width.%]="getTauxOccupation(e)" [class.high]="getTauxOccupation(e) > 80"></div>
+        </div>
+        <span class="occupation-label">{{ e.occupation }} / {{ e.capacite }} unités ({{ getTauxOccupation(e) }}%)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <span class="kicker">{{ isEditMode ? 'Modification' : 'Nouvel entrepôt' }}</span>
+    <h2>{{ isEditMode ? "Modifier l'entrepôt" : 'Ajouter un entrepôt' }}</h2>
+
+    <div class="form-field">
+      <label>Nom</label>
+      <input type="text" [(ngModel)]="currentEntrepot.nom" />
+    </div>
+    <div class="form-field">
+      <label>Localisation</label>
+      <input type="text" [(ngModel)]="currentEntrepot.localisation" />
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label>Capacité totale</label>
+        <input type="number" [(ngModel)]="currentEntrepot.capacite" />
+      </div>
+      <div class="form-field">
+        <label>Occupation actuelle</label>
+        <input type="number" [(ngModel)]="currentEntrepot.occupation" />
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="closeModal()">Annuler</button>
+      <button class="btn-primary" (click)="saveEntrepot()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+  <div class="modal small" (click)="$event.stopPropagation()">
+    <span class="kicker">Confirmation</span>
+    <h2>Supprimer cet entrepôt ?</h2>
+    <p class="confirm-text">"{{ entrepotToDelete?.nom }}" sera définitivement supprimé.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="cancelDelete()">Annuler</button>
+      <button class="btn-danger" (click)="deleteEntrepot()">Supprimer</button>
+    </div>
+  </div>
+</div>

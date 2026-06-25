@@ -1,0 +1,241 @@
+$rouge: #7a1f2b;
+$rouge-fonce: #5c1521;
+$or: #b8924a;
+$encre: #1a1a1a;
+$gris-texte: #6b6660;
+
+.entrepots-page {
+  padding: 2.5rem 3rem;
+  font-family: 'Inter', sans-serif;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+
+  .kicker {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: $or;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px;
+    font-weight: 500;
+    color: $encre;
+    margin: 6px 0 4px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: $gris-texte;
+    margin: 0;
+  }
+}
+
+.btn-primary {
+  background: $rouge;
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    background: $rouge-fonce;
+  }
+}
+
+.entrepots-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.entrepot-card {
+  background: white;
+  border: 1px solid #ece6dc;
+  padding: 1.5rem;
+}
+
+.entrepot-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+
+  h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 500;
+    color: $encre;
+    margin: 0;
+  }
+}
+
+.entrepot-actions {
+  display: flex;
+  gap: 10px;
+
+  button {
+    background: none;
+    border: none;
+    font-size: 12px;
+    color: $gris-texte;
+    cursor: pointer;
+    padding: 0;
+
+    &:hover {
+      color: $rouge;
+    }
+
+    &.delete:hover {
+      color: #a32d2d;
+    }
+  }
+}
+
+.localisation {
+  font-size: 13px;
+  color: $gris-texte;
+  margin: 0 0 1.25rem;
+}
+
+.occupation-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bar-track {
+  height: 6px;
+  background: #f0ece4;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: $or;
+
+  &.high {
+    background: $rouge;
+  }
+}
+
+.occupation-label {
+  font-size: 12px;
+  color: $gris-texte;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: white;
+  padding: 2.5rem;
+  width: 460px;
+  max-width: 90vw;
+
+  &.small {
+    width: 400px;
+  }
+
+  .kicker {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: $or;
+  }
+
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: $encre;
+    margin: 6px 0 1.5rem;
+  }
+}
+
+.confirm-text {
+  font-size: 14px;
+  color: $gris-texte;
+  margin: -1rem 0 1.5rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 1.1rem;
+
+  label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: $gris-texte;
+  }
+
+  input {
+    border: none;
+    border-bottom: 1px solid #ddd6cc;
+    padding: 8px 2px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+
+    &:focus {
+      outline: none;
+      border-bottom-color: $rouge;
+    }
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 1.5rem;
+}
+
+.btn-secondary {
+  background: none;
+  border: 1px solid #ddd6cc;
+  color: $gris-texte;
+  padding: 11px 20px;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    border-color: $encre;
+    color: $encre;
+  }
+}
+
+.btn-danger {
+  background: #a32d2d;
+  color: white;
+  border: none;
+  padding: 11px 20px;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    background: #791f1f;
+  }
+}
