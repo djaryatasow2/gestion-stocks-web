@@ -97,4 +97,24 @@ $gris-texte: #6b6660;
       color: $encre;
     }
   }
+  .succes-message {
+  background: rgba(74, 124, 89, 0.1);
+  color: #4a7c59;
+  padding: 12px 16px;
+  font-size: 13px;
+  margin-bottom: 1.5rem;
+}
+
+.loading-message {
+  background: rgba(184, 146, 74, 0.1);
+  color: #b8924a;
+  padding: 12px 16px;
+  font-size: 13px;
+  margin-bottom: 1.5rem;
+}
+
+.btn-export:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 }

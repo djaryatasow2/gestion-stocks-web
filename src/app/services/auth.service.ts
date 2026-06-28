@@ -12,7 +12,7 @@ interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost:8080/api';
+  private apiUrl = '/api';
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -25,6 +25,20 @@ export class AuthService {
         localStorage.setItem('email', res.email);
       })
     );
+  }
+
+  loginSimulation(email: string, password: string): void {
+    localStorage.setItem('token', 'fake-token-temp');
+    localStorage.setItem('email', email);
+    localStorage.setItem('nom', email.split('@')[0]);
+
+    if (email.includes('admin')) {
+      localStorage.setItem('role', 'ADMIN');
+    } else if (email.includes('responsable')) {
+      localStorage.setItem('role', 'RESPONSABLE');
+    } else {
+      localStorage.setItem('role', 'GESTIONNAIRE');
+    }
   }
 
   logout(): void {

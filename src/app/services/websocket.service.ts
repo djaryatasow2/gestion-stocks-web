@@ -5,11 +5,20 @@ import { Subject, Observable } from 'rxjs';
 export class WebSocketService {
   private socket: WebSocket | null = null;
   private messageSubject = new Subject<any>();
-  private url = 'ws://localhost:8080/ws/notifications';
+  private connected = false;
 
-  connect(): void {
+  connect(ip: string): void {
+    if (this.connected) return;
     if (this.socket?.readyState === WebSocket.OPEN) return;
-    this.socket = new WebSocket(this.url);
+    if (this.socket?.readyState === WebSocket.CONNECTING) return;
+
+    const url = `ws://${ip}:8080/ws/notifications`;
+    this.socket = new WebSocket(url);
+
+    this.socket.onopen = () => {
+      this.connected = true;
+      console.log('WebSocket connecté');
+    };
 
     this.socket.onmessage = (event) => {
       try {
@@ -21,7 +30,15 @@ export class WebSocketService {
     };
 
     this.socket.onclose = () => {
-      setTimeout(() => this.connect(), 5000);
+      this.connected = false;
+      if (localStorage.getItem('token')) {
+        setTimeout(() => this.connect(ip), 30000);
+      }
+    };
+
+    this.socket.onerror = () => {
+      this.connected = false;
+      this.socket?.close();
     };
   }
 
@@ -30,6 +47,7 @@ export class WebSocketService {
   }
 
   disconnect(): void {
+    this.connected = false;
     this.socket?.close();
     this.socket = null;
   }

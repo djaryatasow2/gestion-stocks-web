@@ -8,14 +8,16 @@ export interface Mouvement {
   article: string;
   type: string;
   quantite: number;
-  entrepot: string;
+  entrepot?: string;
+  entrepotSource?: string;
+  entrepotDestination?: string;
   utilisateur: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class MouvementService {
-  private url = 'http://localhost:8080/api/mouvements';
+  private url = '/api/mouvements';
   constructor(private http: HttpClient) {}
   getAll(): Observable<Mouvement[]> { return this.http.get<Mouvement[]>(this.url); }
-  create(m: Mouvement): Observable<Mouvement> { return this.http.post<Mouvement>(this.url, m); }
+  create(m: any): Observable<Mouvement> { return this.http.post<Mouvement>(this.url, m); }
 }

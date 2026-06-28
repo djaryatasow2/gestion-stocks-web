@@ -1,1 +1,53 @@
-<p>profile works!</p>
+<div class="profile-page">
+  <div class="page-header">
+    <span class="kicker">Compte</span>
+    <h1>Mon profil</h1>
+  </div>
+
+  <div class="profile-top">
+    <div class="avatar-large">{{ initiales }}</div>
+    <div>
+      <h2>{{ nom }}</h2>
+      <span class="role-badge">{{ role }}</span>
+    </div>
+  </div>
+
+  <p class="message succes" *ngIf="message && messageType === 'succes'">{{ message }}</p>
+  <p class="message erreur" *ngIf="message && messageType === 'erreur'">{{ message }}</p>
+
+  <div class="profile-grid">
+    <div class="panel">
+      <h3>Informations personnelles</h3>
+      <div class="form-field">
+        <label>Nom complet</label>
+        <input type="text" [(ngModel)]="nom" />
+      </div>
+      <div class="form-field">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="email" />
+      </div>
+      <div class="form-field">
+        <label>Rôle</label>
+        <input type="text" [value]="role" disabled />
+      </div>
+      <button class="btn-primary" (click)="enregistrerInfos()">Enregistrer</button>
+    </div>
+
+    <div class="panel">
+      <h3>Changer le mot de passe</h3>
+      <div class="form-field">
+        <label>Mot de passe actuel</label>
+        <input type="password" [(ngModel)]="ancienMotDePasse" />
+      </div>
+      <div class="form-field">
+        <label>Nouveau mot de passe</label>
+        <input type="password" [(ngModel)]="nouveauMotDePasse" />
+      </div>
+      <div class="form-field">
+        <label>Confirmer</label>
+        <input type="password" [(ngModel)]="confirmationMotDePasse" />
+      </div>
+      <button class="btn-primary" (click)="changerMotDePasse()">Modifier</button>
+    </div>
+  </div>
+</div>

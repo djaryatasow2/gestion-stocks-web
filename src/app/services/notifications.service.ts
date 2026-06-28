@@ -15,7 +15,7 @@ export class NotificationService {
   nombreNonLus = signal<number>(0);
 
   constructor(private wsService: WebSocketService) {
-    this.wsService.connect();
+    this.wsService.connect('192.168.101.185');
     this.wsService.getMessages().subscribe(data => {
       const notif: Notification = {
         id: Date.now(),
@@ -30,7 +30,7 @@ export class NotificationService {
   }
 
   marquerToutLu(): void {
-    this.notifications.update(n => n.map(notif => ({ ...notif, lu: true })));
+    this.notifications.update(n => n.map((notif: Notification) => ({ ...notif, lu: true })));
     this.nombreNonLus.set(0);
   }
 }

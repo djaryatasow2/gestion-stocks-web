@@ -1,0 +1,92 @@
+<div class="mouvements-page">
+  <div class="page-header">
+    <div>
+      <span class="kicker">Stocks</span>
+      <h1>Mouvements de stock</h1>
+      <p class="subtitle">{{ mouvements.length }} mouvement(s) enregistré(s)</p>
+    </div>
+    <button class="btn-primary" (click)="openModal()">+ Nouveau mouvement</button>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Article</th>
+          <th>Source</th>
+          <th>Destination</th>
+          <th>Quantité</th>
+          <th>Utilisateur</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of mouvements">
+          <td class="date">{{ m.date }}</td>
+          <td><span class="badge" [ngClass]="m.type.toLowerCase()">{{ getTypeLabel(m.type) }}</span></td>
+          <td class="nom">{{ m.article }}</td>
+          <td class="muted">{{ m.entrepotSource || '—' }}</td>
+          <td class="muted">{{ m.entrepotDestination || '—' }}</td>
+          <td>{{ m.quantite }}</td>
+          <td class="muted">{{ m.utilisateur }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <span class="kicker">Enregistrement</span>
+    <h2>Nouveau mouvement</h2>
+
+    <div class="form-field">
+      <label>Type de mouvement</label>
+      <select [(ngModel)]="currentMouvement.type">
+        <option value="ENTREE">Entrée</option>
+        <option value="SORTIE">Sortie</option>
+        <option value="TRANSFERT">Transfert</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Article</label>
+      <select [(ngModel)]="currentMouvement.article">
+        <option value="">-- Choisir un article --</option>
+        <option *ngFor="let a of articles" [value]="a">{{ a }}</option>
+      </select>
+    </div>
+
+    <div class="form-field" *ngIf="currentMouvement.type === 'SORTIE' || currentMouvement.type === 'TRANSFERT'">
+      <label>Entrepôt source</label>
+      <select [(ngModel)]="currentMouvement.entrepotSource">
+        <option value="">-- Choisir --</option>
+        <option *ngFor="let e of entrepots" [value]="e">{{ e }}</option>
+      </select>
+    </div>
+
+    <div class="form-field" *ngIf="currentMouvement.type === 'ENTREE' || currentMouvement.type === 'TRANSFERT'">
+      <label>Entrepôt destination</label>
+      <select [(ngModel)]="currentMouvement.entrepotDestination">
+        <option value="">-- Choisir --</option>
+        <option *ngFor="let e of entrepots" [value]="e">{{ e }}</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Quantité</label>
+      <input type="number" [(ngModel)]="currentMouvement.quantite" min="1" />
+    </div>
+
+    <div class="form-field">
+      <label>Date</label>
+      <input type="date" [(ngModel)]="currentMouvement.date" />
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="closeModal()">Annuler</button>
+      <button class="btn-primary" (click)="saveMouvement()">Enregistrer</button>
+    </div>
+  </div>
+</div>

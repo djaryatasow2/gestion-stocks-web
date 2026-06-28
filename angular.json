@@ -59,7 +59,8 @@
               "buildTarget": "gestion-stocks-web:build:production"
             },
             "development": {
-              "buildTarget": "gestion-stocks-web:build:development"
+              "buildTarget": "gestion-stocks-web:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

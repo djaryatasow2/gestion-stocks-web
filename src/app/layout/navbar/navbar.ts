@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
-import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-navbar',
@@ -12,11 +11,9 @@ import { NotificationService } from '../../services/notification.service';
 })
 export class Navbar {
   showNotifications = false;
+  notifications: any[] = [];
 
-  constructor(
-    public authService: AuthService,
-    public notifService: NotificationService
-  ) {}
+  constructor(public authService: AuthService) {}
 
   get initiales(): string {
     const nom = this.authService.getNom();
@@ -26,9 +23,6 @@ export class Navbar {
 
   toggleNotifications(): void {
     this.showNotifications = !this.showNotifications;
-    if (this.showNotifications) {
-      this.notifService.marquerToutLu();
-    }
   }
 
   logout(): void {
