@@ -1,25 +1,79 @@
+$rouge: #7a1f2b;
+$or: #b8924a;
+$encre: #1a1a1a;
+$gris-texte: #6b6660;
+$vert: #4a7c59;
+
+.previsions-page { padding: 2.5rem 3rem; font-family: 'Inter', sans-serif; }
+
+.page-header {
+  margin-bottom: 2rem;
+  .kicker { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: $or; display: block; }
+  h1 { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 500; color: $encre; margin: 6px 0 4px; }
+  .subtitle { font-size: 13px; color: $gris-texte; margin: 0; }
+}
+
 .horizon-selector {
   display: flex;
   gap: 8px;
   margin-bottom: 1.5rem;
-
   button {
     background: none;
     border: 1px solid #ddd6cc;
-    color: #6b6660;
-    padding: 8px 16px;
+    color: $gris-texte;
+    padding: 8px 20px;
     font-size: 13px;
     cursor: pointer;
-
-    &.active {
-      background: #7a1f2b;
-      color: white;
-      border-color: #7a1f2b;
-    }
-
-    &:hover:not(.active) {
-      border-color: #7a1f2b;
-      color: #7a1f2b;
-    }
+    font-family: 'Inter', sans-serif;
+    &.active { background: $rouge; color: white; border-color: $rouge; }
+    &:hover:not(.active) { border-color: $rouge; color: $rouge; }
   }
+}
+
+.panel {
+  background: white;
+  border: 1px solid #ece6dc;
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: $encre;
+    margin: 0 0 1.5rem;
+  }
+}
+
+.chart-wrapper {
+  position: relative;
+  height: 260px;
+}
+
+table { width: 100%; border-collapse: collapse; }
+thead { background: #faf8f5; border-bottom: 1px solid #ece6dc; }
+th {
+  text-align: left;
+  padding: 12px 20px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: $gris-texte;
+  font-weight: 500;
+}
+td {
+  padding: 14px 20px;
+  font-size: 14px;
+  color: $encre;
+  border-bottom: 1px solid #f4f0e9;
+}
+tr:last-child td { border-bottom: none; }
+.nom { font-weight: 500; }
+
+.badge {
+  font-size: 12px;
+  padding: 4px 14px;
+  font-weight: 500;
+  &.normal { background: rgba(74,124,89,.1); color: $vert; }
+  &.attention { background: rgba(184,146,74,.12); color: $or; }
+  &.critique { background: rgba(122,31,43,.1); color: $rouge; }
 }
