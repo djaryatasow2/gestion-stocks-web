@@ -1,4 +1,5 @@
 $rouge: #7a1f2b;
+$rouge-fonce: #5c1521;
 $or: #b8924a;
 $encre: #1a1a1a;
 $gris-texte: #6b6660;
@@ -7,43 +8,154 @@ $vert: #4a7c59;
 .alertes-page { padding: 2.5rem 3rem; font-family: 'Inter', sans-serif; }
 
 .page-header {
-  margin-bottom: 2.5rem;
-  .kicker { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: $or; }
+  margin-bottom: 2rem;
+  .kicker { font-size: 12px; text-transform: uppercase; letter-spacing: .12em; color: $or; display: block; }
   h1 { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 500; color: $encre; margin: 6px 0 4px; }
   .subtitle { font-size: 13px; color: $gris-texte; margin: 0; }
 }
 
-.section {
-  margin-bottom: 2.5rem;
-  h2 { font-family: 'Cormorant Garamond', serif; font-size: 19px; font-weight: 500; color: $encre; margin: 0 0 1rem; }
+.stats-alertes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 2rem;
 }
 
-.alertes-list { display: flex; flex-direction: column; gap: 12px; }
+.stat-card {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-radius: 4px;
+
+  &.rouge { background: rgba(122,31,43,.08); border-left: 3px solid $rouge; }
+  &.or { background: rgba(184,146,74,.08); border-left: 3px solid $or; }
+  &.sombre { background: #faf8f5; border-left: 3px solid #ddd6cc; }
+
+  .stat-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    color: $encre;
+    line-height: 1;
+  }
+
+  .stat-label { font-size: 12px; color: $gris-texte; text-transform: uppercase; letter-spacing: .05em; }
+}
+
+.section {
+  margin-bottom: 2rem;
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 19px;
+    font-weight: 500;
+    color: $encre;
+    margin: 0 0 1rem;
+  }
+}
+
+.alertes-list { display: flex; flex-direction: column; gap: 10px; }
 
 .alerte-card {
-  background: white; border: 1px solid #ece6dc; border-left: 3px solid $or;
-  padding: 1.25rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+  background: white;
+  border: 1px solid #ece6dc;
+  border-left: 3px solid $or;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+
   &.rupture { border-left-color: $rouge; }
   &.treated { opacity: 0.6; border-left-color: $vert; }
 }
 
+.alerte-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.alerte-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(184,146,74,.1);
+  border-radius: 50%;
+  font-size: 16px;
+
+  &.rupture { background: rgba(122,31,43,.1); }
+  &.treated { background: rgba(74,124,89,.1); color: $vert; font-size: 18px; font-weight: 500; }
+}
+
 .alerte-info {
-  display: flex; flex-direction: column; gap: 4px; flex: 1;
-  .alerte-article { font-size: 15px; font-weight: 500; color: $encre; }
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  .alerte-article { font-size: 14px; font-weight: 500; color: $encre; }
   .alerte-entrepot { font-size: 12px; color: $gris-texte; }
 }
 
-.alerte-niveau {
-  display: flex; flex-direction: column; align-items: flex-end; gap: 2px;
-  .niveau-value { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: $rouge; }
-  .niveau-label { font-size: 11px; color: $gris-texte; text-transform: uppercase; letter-spacing: .04em; }
+.alerte-centre {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-bar {
+  height: 6px;
+  background: #f0ece4;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: $or;
+  border-radius: 3px;
+  max-width: 100%;
+  &.rupture { background: $rouge; }
+}
+
+.progress-label { font-size: 12px; color: $gris-texte; }
+
+.alerte-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.alerte-statut {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  background: rgba(184,146,74,.1);
+  color: $or;
+  &.rupture { background: rgba(122,31,43,.1); color: $rouge; }
 }
 
 .btn-treat {
-  background: none; border: 1px solid #ddd6cc; color: $gris-texte; padding: 9px 16px; font-size: 12.5px; cursor: pointer; white-space: nowrap;
+  background: none;
+  border: 1px solid #ddd6cc;
+  color: $gris-texte;
+  padding: 7px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
   &:hover { border-color: $vert; color: $vert; }
 }
 
 .treated-badge { font-size: 12px; color: $vert; font-weight: 500; }
 
-.empty-state { font-size: 14px; color: $gris-texte; text-align: center; padding: 2rem; background: white; border: 1px solid #ece6dc; }
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border: 1px solid #ece6dc;
+  .empty-icon { font-size: 36px; display: block; margin-bottom: 1rem; }
+  p { font-size: 14px; color: $gris-texte; margin: 0; }
+}

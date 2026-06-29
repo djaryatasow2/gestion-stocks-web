@@ -8,6 +8,21 @@
     <button class="btn-primary" (click)="openModal()">+ Nouveau mouvement</button>
   </div>
 
+  <div class="stats-mouvements">
+    <div class="stat-card vert">
+      <span class="stat-value">{{ mouvements.length > 0 ? mouvements.filter(m => m.type === 'ENTREE').length : 0 }}</span>
+      <span class="stat-label">Entrées</span>
+    </div>
+    <div class="stat-card rouge">
+      <span class="stat-value">{{ mouvements.length > 0 ? mouvements.filter(m => m.type === 'SORTIE').length : 0 }}</span>
+      <span class="stat-label">Sorties</span>
+    </div>
+    <div class="stat-card bleu">
+      <span class="stat-value">{{ mouvements.length > 0 ? mouvements.filter(m => m.type === 'TRANSFERT').length : 0 }}</span>
+      <span class="stat-label">Transferts</span>
+    </div>
+  </div>
+
   <div class="table-container">
     <table>
       <thead>
@@ -24,12 +39,19 @@
       <tbody>
         <tr *ngFor="let m of mouvements">
           <td class="date">{{ m.date }}</td>
-          <td><span class="badge" [ngClass]="m.type.toLowerCase()">{{ getTypeLabel(m.type) }}</span></td>
+          <td>
+            <span class="badge" [ngClass]="m.type.toLowerCase()">
+              {{ getTypeLabel(m.type) }}
+            </span>
+          </td>
           <td class="nom">{{ m.article }}</td>
           <td class="muted">{{ m.entrepotSource || '—' }}</td>
           <td class="muted">{{ m.entrepotDestination || '—' }}</td>
           <td>{{ m.quantite }}</td>
           <td class="muted">{{ m.utilisateur }}</td>
+        </tr>
+        <tr *ngIf="mouvements.length === 0">
+          <td colspan="7" class="empty">Aucun mouvement enregistré</td>
         </tr>
       </tbody>
     </table>
@@ -74,19 +96,16 @@
       </select>
     </div>
 
-    <div class="form-field">
-      <label>Quantité</label>
-      <input type="number" [(ngModel)]="currentMouvement.quantite" min="1" />
-    </div>
-
-    <div class="form-field">
-      <label>Date</label>
-      <input type="date" [(ngModel)]="currentMouvement.date" />
+    <div class="form-row">
+      <div class="form-field">
+        <label>Quantité</label>
+        <input type="number" [(ngModel)]="currentMouvement.quantite" min="1" />
+      </div>
+      <div class="form-field">
+        <label>Date</label>
+        <input type="date" [(ngModel)]="currentMouvement.date" />
+      </div>
     </div>
 
     <div class="modal-actions">
       <button class="btn-secondary" (click)="closeModal()">Annuler</button>
-      <button class="btn-primary" (click)="saveMouvement()">Enregistrer</button>
-    </div>
-  </div>
-</div>
