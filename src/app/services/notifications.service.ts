@@ -1,36 +1,35 @@
-import { Injectable, signal } from '@angular/core';
-import { WebSocketService } from './websocket.service';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
-export interface Notification {
-  id: number;
+export interface NotificationDto {
+  id?: number;
+  type: string;
   message: string;
-  type: 'alerte' | 'info' | 'succes';
-  lu: boolean;
-  date: string;
+  estLue: boolean;
+  dateEnvoi?: string;
+  alerteId: number;
+  userId: number;
 }
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  notifications = signal<Notification[]>([]);
-  nombreNonLus = signal<number>(0);
+  private http = inject(HttpClient);
+  private apiUrl = '/api/notifications';
 
-  constructor(private wsService: WebSocketService) {
-    this.wsService.connect('192.168.101.185');
-    this.wsService.getMessages().subscribe(data => {
-      const notif: Notification = {
-        id: Date.now(),
-        message: data.message || data,
-        type: data.type || 'info',
-        lu: false,
-        date: new Date().toLocaleTimeString()
-      };
-      this.notifications.update(n => [notif, ...n]);
-      this.nombreNonLus.update(n => n + 1);
-    });
+  getByUser(userId: number): Observable<NotificationDto[]> {
+    return this.http.get<NotificationDto[]>(`${this.apiUrl}/user/${userId}`);
   }
 
-  marquerToutLu(): void {
-    this.notifications.update(n => n.map((notif: Notification) => ({ ...notif, lu: true })));
-    this.nombreNonLus.set(0);
+  getNonLues(userId: number): Observable<NotificationDto[]> {
+    return this.http.get<NotificationDto[]>(`${this.apiUrl}/user/${userId}/non-lues`);
+  }
+
+  marquerLue(id: number): Observable<NotificationDto> {
+    return this.http.put<NotificationDto>(`${this.apiUrl}/${id}/lire`, {});
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

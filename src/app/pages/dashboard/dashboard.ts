@@ -1,6 +1,6 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { DashboardService, DashboardDto } from '../../services/dashboard.service';
 import { Chart, registerables } from 'chart.js';
 
 Chart.register(...registerables);
@@ -11,85 +11,70 @@ Chart.register(...registerables);
   imports: [CommonModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Dashboard implements OnInit, AfterViewInit {
-  @ViewChild('camembertChart') camembertRef!: ElementRef;
   @ViewChild('barChart') barRef!: ElementRef;
 
-  stats = [
-    { label: 'Total articles', value: 245 },
-    { label: 'Entrepôts actifs', value: 5 },
-    { label: 'Alertes en cours', value: 12 },
-    { label: 'Ruptures de stock', value: 3 },
-  ];
+  stats: DashboardDto = {
+    totalArticles: 0,
+    totalEntrepots: 0,
+    totalStocksCritiques: 0,
+    totalAlertesNonTraitees: 0,
+    totalMouvementsAujourdhui: 0,
+    valeurTotaleStock: 0
+  };
 
-  alertes = [
-    { article: 'Souris sans fil', niveau: 5, seuil: 15, entrepot: 'Entrepôt A' },
-    { article: 'Chaise de bureau', niveau: 0, seuil: 5, entrepot: 'Entrepôt B' },
-    { article: 'Câble HDMI', niveau: 2, seuil: 10, entrepot: 'Entrepôt C' },
-  ];
+  isLoading = false;
+  errorMessage = '';
+  chart: any = null;
 
-  repartition = [
-    { nom: 'Entrepôt A', pourcentage: 42 },
-    { nom: 'Entrepôt B', pourcentage: 28 },
-    { nom: 'Entrepôt C', pourcentage: 30 },
-  ];
-
-  constructor(private http: HttpClient) {}
+  constructor(
+    private dashboardService: DashboardService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
-    this.http.get<any>('/api/dashboard').subscribe({
-      next: (data) => {
-        this.stats = [
-          { label: 'Total articles', value: data.totalArticles || 245 },
-          { label: 'Entrepôts actifs', value: data.totalEntrepots || 5 },
-          { label: 'Alertes en cours', value: data.alertesActives || 12 },
-          { label: 'Ruptures de stock', value: data.rupturesStock || 3 },
-        ];
-        this.alertes = data.alertes || this.alertes;
-        this.repartition = data.repartitionEntrepots || this.repartition;
-      },
-      error: () => {}
-    });
+    this.charger();
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.creerCamembert();
-      this.creerBarChart();
-    }, 300);
+    setTimeout(() => this.creerChart(), 500);
   }
 
-  creerCamembert(): void {
-    if (!this.camembertRef) return;
-    new Chart(this.camembertRef.nativeElement, {
-      type: 'doughnut',
-      data: {
-        labels: this.repartition.map(r => r.nom),
-        datasets: [{
-          data: this.repartition.map(r => r.pourcentage),
-          backgroundColor: ['#7a1f2b', '#b8924a', '#5c1521'],
-          borderWidth: 0,
-        }]
+  charger(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.dashboardService.getStats().subscribe({
+      next: (data) => {
+        this.stats = data;
+        this.isLoading = false;
+        this.cdr.markForCheck();
       },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom' }
-        }
+      error: () => {
+        this.isLoading = false;
+        this.errorMessage = 'Impossible de charger le tableau de bord.';
+        this.cdr.markForCheck();
       }
     });
   }
 
-  creerBarChart(): void {
+  creerChart(): void {
     if (!this.barRef) return;
-    new Chart(this.barRef.nativeElement, {
+    if (this.chart) this.chart.destroy();
+    this.chart = new Chart(this.barRef.nativeElement, {
       type: 'bar',
       data: {
-        labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
+        labels: ['Articles', 'Entrepôts', 'Stocks critiques', 'Alertes', 'Mouvements'],
         datasets: [{
-          label: 'Mouvements',
-          data: [65, 72, 58, 80, 74, 90],
+          label: 'Statistiques',
+          data: [
+            this.stats.totalArticles,
+            this.stats.totalEntrepots,
+            this.stats.totalStocksCritiques,
+            this.stats.totalAlertesNonTraitees,
+            this.stats.totalMouvementsAujourdhui
+          ],
           backgroundColor: '#7a1f2b',
           borderRadius: 4,
         }]

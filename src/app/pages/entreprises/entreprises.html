@@ -3,38 +3,42 @@
     <div>
       <span class="kicker">Administration</span>
       <h1>Entreprises</h1>
-      <p class="subtitle">{{ entreprises.length }} entreprise(s) cliente(s)</p>
+      <p class="subtitle">{{ entreprises.length }} entreprise(s)</p>
     </div>
-    <button class="btn-primary" (click)="openAddModal()">+ Ajouter une entreprise</button>
+    <button class="btn-primary" (click)="openAdd()">+ Ajouter</button>
   </div>
 
-  <div class="table-container">
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Chargement...</p>
+
+  <div class="table-container" *ngIf="!isLoading">
     <table>
       <thead>
         <tr>
           <th>Nom</th>
-          <th>Secteur</th>
-          <th>Contact</th>
-          <th>Utilisateurs</th>
-          <th>Statut</th>
+          <th>Adresse</th>
+          <th>Téléphone</th>
+          <th>Email</th>
+          <th>SIRET</th>
+          <th>Date création</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let e of entreprises">
-          <td class="nom">{{ e.nom }}</td>
-          <td>{{ e.secteur }}</td>
-          <td class="contact">{{ e.contact }}</td>
-          <td>{{ e.nombreUtilisateurs }}</td>
-          <td>
-            <span class="badge" [class.inactive]="!e.active">
-              {{ e.active ? 'Active' : 'Inactive' }}
-            </span>
-          </td>
+          <td>{{ e.nom }}</td>
+          <td>{{ e.adresse }}</td>
+          <td>{{ e.telephone }}</td>
+          <td>{{ e.email }}</td>
+          <td>{{ e.siret }}</td>
+          <td>{{ e.dateCreation ? (e.dateCreation | date:'dd/MM/yyyy') : '—' }}</td>
           <td class="actions">
-            <button class="btn-icon" (click)="openEditModal(e)">Modifier</button>
+            <button class="btn-icon" (click)="openEdit(e)">Modifier</button>
             <button class="btn-icon delete" (click)="confirmDelete(e)">Supprimer</button>
           </td>
+        </tr>
+        <tr *ngIf="entreprises.length === 0">
+          <td colspan="7" class="empty">Aucune entreprise enregistrée</td>
         </tr>
       </tbody>
     </table>
@@ -46,28 +50,34 @@
     <span class="kicker">{{ isEditMode ? 'Modification' : 'Nouvelle entreprise' }}</span>
     <h2>{{ isEditMode ? "Modifier l'entreprise" : 'Ajouter une entreprise' }}</h2>
 
+    <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+
     <div class="form-field">
-      <label>Nom de l'entreprise</label>
-      <input type="text" [(ngModel)]="currentEntreprise.nom" />
+      <label>Nom *</label>
+      <input type="text" [(ngModel)]="current.nom" name="nom" />
     </div>
     <div class="form-field">
-      <label>Secteur d'activité</label>
-      <input type="text" [(ngModel)]="currentEntreprise.secteur" />
+      <label>Adresse</label>
+      <input type="text" [(ngModel)]="current.adresse" name="adresse" />
     </div>
     <div class="form-field">
-      <label>Email de contact</label>
-      <input type="email" [(ngModel)]="currentEntreprise.contact" />
+      <label>Téléphone</label>
+      <input type="text" [(ngModel)]="current.telephone" name="telephone" />
     </div>
-    <div class="form-field checkbox-field">
-      <label class="checkbox-label">
-        <input type="checkbox" [(ngModel)]="currentEntreprise.active" />
-        <span>Entreprise active</span>
-      </label>
+    <div class="form-field">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="current.email" name="email" />
+    </div>
+    <div class="form-field">
+      <label>SIRET</label>
+      <input type="text" [(ngModel)]="current.siret" name="siret" />
     </div>
 
     <div class="modal-actions">
-      <button class="btn-secondary" (click)="closeModal()">Annuler</button>
-      <button class="btn-primary" (click)="saveEntreprise()">Enregistrer</button>
+      <button class="btn-secondary" (click)="closeModal()" [disabled]="isSaving">Annuler</button>
+      <button class="btn-primary" (click)="save()" [disabled]="isSaving">
+        {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
+      </button>
     </div>
   </div>
 </div>
@@ -76,10 +86,12 @@
   <div class="modal small" (click)="$event.stopPropagation()">
     <span class="kicker">Confirmation</span>
     <h2>Supprimer cette entreprise ?</h2>
-    <p class="confirm-text">"{{ entrepriseToDelete?.nom }}" sera définitivement supprimée.</p>
+    <p>"{{ toDelete?.nom }}" sera définitivement supprimée.</p>
     <div class="modal-actions">
-      <button class="btn-secondary" (click)="cancelDelete()">Annuler</button>
-      <button class="btn-danger" (click)="deleteEntreprise()">Supprimer</button>
+      <button class="btn-secondary" (click)="cancelDelete()" [disabled]="isDeleting">Annuler</button>
+      <button class="btn-danger" (click)="delete()" [disabled]="isDeleting">
+        {{ isDeleting ? 'Suppression...' : 'Supprimer' }}
+      </button>
     </div>
   </div>
 </div>

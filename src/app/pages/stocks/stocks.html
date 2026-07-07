@@ -1,0 +1,101 @@
+<div class="stocks-page">
+  <div class="page-header">
+    <div>
+      <span class="kicker">Gestion</span>
+      <h1>Stocks</h1>
+      <p class="subtitle">{{ stocks.length }} stock(s)</p>
+    </div>
+    <button class="btn-primary" (click)="openAdd()">+ Ajouter</button>
+  </div>
+
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Chargement...</p>
+
+  <div class="table-container" *ngIf="!isLoading">
+    <table>
+      <thead>
+        <tr>
+          <th>ID Article</th>
+          <th>ID Entrepôt</th>
+          <th>Quantité</th>
+          <th>Qté min</th>
+          <th>Qté max</th>
+          <th>Emplacement</th>
+          <th>Statut</th>
+          <th>Dernière MAJ</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of stocks">
+          <td>{{ s.articleId }}</td>
+          <td>{{ s.entrepotId }}</td>
+          <td>{{ s.quantite }}</td>
+          <td>{{ s.quantiteMinimale }}</td>
+          <td>{{ s.quantiteMaximale }}</td>
+          <td>{{ s.emplacement }}</td>
+          <td>
+            <span class="badge" [ngClass]="getStatut(s)">
+              {{ getStatutLabel(s) }}
+            </span>
+          </td>
+          <td>{{ s.lastUpdated | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td class="actions">
+            <button class="btn-icon" (click)="openEdit(s)">Modifier</button>
+            <button class="btn-icon delete" (click)="confirmDelete(s)">Supprimer</button>
+          </td>
+        </tr>
+        <tr *ngIf="stocks.length === 0">
+          <td colspan="9" class="empty">Aucun stock enregistré</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <span class="kicker">{{ isEditMode ? 'Modification' : 'Nouveau stock' }}</span>
+    <h2>{{ isEditMode ? 'Modifier le stock' : 'Ajouter un stock' }}</h2>
+    <div class="form-field">
+      <label>ID Article</label>
+      <input type="number" [(ngModel)]="current.articleId" />
+    </div>
+    <div class="form-field">
+      <label>ID Entrepôt</label>
+      <input type="number" [(ngModel)]="current.entrepotId" />
+    </div>
+    <div class="form-field">
+      <label>Quantité</label>
+      <input type="number" [(ngModel)]="current.quantite" />
+    </div>
+    <div class="form-field">
+      <label>Quantité minimale</label>
+      <input type="number" [(ngModel)]="current.quantiteMinimale" />
+    </div>
+    <div class="form-field">
+      <label>Quantité maximale</label>
+      <input type="number" [(ngModel)]="current.quantiteMaximale" />
+    </div>
+    <div class="form-field">
+      <label>Emplacement</label>
+      <input type="text" [(ngModel)]="current.emplacement" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="closeModal()">Annuler</button>
+      <button class="btn-primary" (click)="save()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+  <div class="modal small" (click)="$event.stopPropagation()">
+    <span class="kicker">Confirmation</span>
+    <h2>Supprimer ce stock ?</h2>
+    <p>Ce stock sera définitivement supprimé.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="cancelDelete()">Annuler</button>
+      <button class="btn-danger" (click)="delete()">Supprimer</button>
+    </div>
+  </div>
+</div>

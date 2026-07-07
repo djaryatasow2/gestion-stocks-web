@@ -1,57 +1,52 @@
 <div class="alertes-page">
   <div class="page-header">
     <span class="kicker">Surveillance</span>
-    <h1>Alertes de seuil minimum</h1>
+    <h1>Alertes de stock</h1>
     <p class="subtitle">{{ alertesActives.length }} alerte(s) active(s)</p>
   </div>
 
-  <div class="stats-alertes">
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Chargement...</p>
+
+  <div class="stats-alertes" *ngIf="!isLoading">
     <div class="stat-card rouge">
       <span class="stat-value">{{ alertesActives.length }}</span>
       <span class="stat-label">Alertes actives</span>
     </div>
     <div class="stat-card or">
-      <span class="stat-value">{{ alertes.length - alertesActives.length }}</span>
+      <span class="stat-value">{{ alertesTraitees.length }}</span>
       <span class="stat-label">Alertes traitées</span>
     </div>
     <div class="stat-card sombre">
       <span class="stat-value">{{ alertes.length }}</span>
-      <span class="stat-label">Total alertes</span>
+      <span class="stat-label">Total</span>
     </div>
   </div>
 
   <div class="section" *ngIf="alertesActives.length > 0">
     <h2>Alertes actives</h2>
     <div class="alertes-list">
-      <div class="alerte-card" *ngFor="let a of alertesActives" [class.rupture]="isRupture(a)">
+      <div class="alerte-card" *ngFor="let a of alertesActives">
         <div class="alerte-left">
-          <div class="alerte-icon" [class.rupture]="isRupture(a)">
-            {{ isRupture(a) ? '🚨' : '⚠️' }}
-          </div>
+          <div class="alerte-icon">⚠️</div>
           <div class="alerte-info">
-            <span class="alerte-article">{{ a.article }}</span>
-            <span class="alerte-entrepot">{{ a.entrepot }}</span>
+            <span class="alerte-type">{{ a.typeAlerte }}</span>
+            <span class="alerte-message">{{ a.message }}</span>
+            <span class="alerte-date">{{ a.dateCreation | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
-        </div>
-        <div class="alerte-centre">
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="(a.niveauActuel / a.seuilMinimum) * 100" [class.rupture]="isRupture(a)"></div>
-          </div>
-          <span class="progress-label">{{ a.niveauActuel }} / {{ a.seuilMinimum }} unités</span>
         </div>
         <div class="alerte-right">
-          <span class="alerte-statut" [class.rupture]="isRupture(a)">
-            {{ isRupture(a) ? 'Rupture' : 'Stock bas' }}
-          </span>
-          <button class="btn-treat" (click)="marquerTraitee(a)">Marquer traitée</button>
+          <button class="btn-treat" (click)="traiter(a)">Traiter</button>
+          <button class="btn-acquit" (click)="acquitter(a)">Acquitter</button>
+          <button class="btn-icon delete" (click)="delete(a)">Supprimer</button>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="empty-state" *ngIf="alertesActives.length === 0">
+  <div class="empty-state" *ngIf="alertesActives.length === 0 && !isLoading">
     <span class="empty-icon">✅</span>
-    <p>Aucune alerte active — tous les stocks sont corrects.</p>
+    <p>Aucune alerte active.</p>
   </div>
 
   <div class="section" *ngIf="alertesTraitees.length > 0">
@@ -61,8 +56,9 @@
         <div class="alerte-left">
           <div class="alerte-icon treated">✓</div>
           <div class="alerte-info">
-            <span class="alerte-article">{{ a.article }}</span>
-            <span class="alerte-entrepot">{{ a.entrepot }}</span>
+            <span class="alerte-type">{{ a.typeAlerte }}</span>
+            <span class="alerte-message">{{ a.message }}</span>
+            <span class="alerte-date">Traitée le : {{ a.dateTraitement | date:'dd/MM/yyyy HH:mm' }}</span>
           </div>
         </div>
         <span class="treated-badge">Traitée</span>

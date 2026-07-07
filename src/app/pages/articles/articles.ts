@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ArticleService, Article } from '../../services/article.service';
+import { ArticleService, ArticleDto } from '../../services/article.service';
 
 @Component({
   selector: 'app-articles',
@@ -11,127 +11,70 @@ import { ArticleService, Article } from '../../services/article.service';
   styleUrl: './articles.scss',
 })
 export class Articles implements OnInit {
-  articles: Article[] = [];
+  articles: ArticleDto[] = [];
   searchTerm = '';
   showModal = false;
   isEditMode = false;
-  currentArticle: Article = this.empty();
-  articleToDelete: Article | null = null;
+  current: ArticleDto = this.empty();
+  toDelete: ArticleDto | null = null;
   showDeleteConfirm = false;
   isLoading = false;
   errorMessage = '';
 
-  constructor(private articleService: ArticleService) {}
+  constructor(private service: ArticleService) {}
 
-  ngOnInit(): void {
-    this.chargerArticles();
-  }
+  ngOnInit(): void { this.charger(); }
 
-  chargerArticles(): void {
+  charger(): void {
     this.isLoading = true;
-    this.articleService.getAll().subscribe({
-      next: (data) => {
-        this.articles = data;
-        this.isLoading = false;
-      },
-      error: () => {
-        this.isLoading = false;
-        this.errorMessage = 'Impossible de charger les articles.';
-      }
+    this.errorMessage = '';
+    this.service.getAll().subscribe({
+      next: (data) => { this.articles = data; this.isLoading = false; },
+      error: () => { this.isLoading = false; this.errorMessage = 'Impossible de charger les articles.'; }
     });
   }
 
-  empty(): Article {
-    return { id: 0, nom: '', reference: '', categorie: '', quantite: 0, seuilMinimum: 0, entrepot: '' };
+  empty(): ArticleDto {
+    return { code: '', nom: '', description: '', uniteMesure: '', poids: 0, volume: 0, codeBarre: '', qrCode: '', categorieId: 0, entrepriseId: 0 };
   }
 
-  get filteredArticles(): Article[] {
+  get filtered(): ArticleDto[] {
     if (!this.searchTerm) return this.articles;
     const term = this.searchTerm.toLowerCase();
     return this.articles.filter(a =>
       a.nom.toLowerCase().includes(term) ||
-      a.reference.toLowerCase().includes(term) ||
-      a.categorie.toLowerCase().includes(term)
+      a.code.toLowerCase().includes(term) ||
+      a.codeBarre.toLowerCase().includes(term)
     );
   }
 
-  getStatut(a: Article): string {
-    if (a.quantite === 0) return 'rupture';
-    if (a.quantite <= a.seuilMinimum) return 'bas';
-    return 'normal';
-  }
+  openAdd(): void { this.isEditMode = false; this.current = this.empty(); this.showModal = true; }
+  openEdit(a: ArticleDto): void { this.isEditMode = true; this.current = { ...a }; this.showModal = true; }
+  closeModal(): void { this.showModal = false; }
 
-  getStatutLabel(a: Article): string {
-    const s = this.getStatut(a);
-    if (s === 'normal') return 'Normal';
-    if (s === 'bas') return 'Stock bas';
-    return 'Rupture';
-  }
-
-  openAddModal() {
-    this.isEditMode = false;
-    this.currentArticle = this.empty();
-    this.showModal = true;
-  }
-
-  openEditModal(a: Article) {
-    this.isEditMode = true;
-    this.currentArticle = { ...a };
-    this.showModal = true;
-  }
-
-  closeModal() {
-    this.showModal = false;
-    this.errorMessage = '';
-  }
-
-  saveArticle() {
-    if (this.isEditMode) {
-      this.articleService.update(this.currentArticle.id, this.currentArticle).subscribe({
-        next: () => {
-          this.chargerArticles();
-          this.closeModal();
-        },
-        error: () => {
-          const i = this.articles.findIndex(a => a.id === this.currentArticle.id);
-          if (i !== -1) this.articles[i] = { ...this.currentArticle };
-          this.closeModal();
-        }
+  save(): void {
+    if (this.isEditMode && this.current.id) {
+      this.service.update(this.current.id, this.current).subscribe({
+        next: () => { this.charger(); this.closeModal(); },
+        error: () => { this.errorMessage = 'Erreur lors de la modification.'; }
       });
     } else {
-      this.articleService.create(this.currentArticle).subscribe({
-        next: () => {
-          this.chargerArticles();
-          this.closeModal();
-        },
-        error: () => {
-          const newId = Math.max(0, ...this.articles.map(a => a.id)) + 1;
-          this.articles.push({ ...this.currentArticle, id: newId });
-          this.closeModal();
-        }
+      this.service.create(this.current).subscribe({
+        next: () => { this.charger(); this.closeModal(); },
+        error: () => { this.errorMessage = 'Erreur lors de la création.'; }
       });
     }
   }
 
-  confirmDelete(a: Article) {
-    this.articleToDelete = a;
-    this.showDeleteConfirm = true;
-  }
+  confirmDelete(a: ArticleDto): void { this.toDelete = a; this.showDeleteConfirm = true; }
+  cancelDelete(): void { this.toDelete = null; this.showDeleteConfirm = false; }
 
-  cancelDelete() {
-    this.articleToDelete = null;
-    this.showDeleteConfirm = false;
-  }
-
-  deleteArticle() {
-    if (this.articleToDelete) {
-      this.articleService.delete(this.articleToDelete.id).subscribe({
-        next: () => this.chargerArticles(),
-        error: () => {
-          this.articles = this.articles.filter(a => a.id !== this.articleToDelete!.id);
-        }
+  delete(): void {
+    if (this.toDelete?.id) {
+      this.service.delete(this.toDelete.id).subscribe({
+        next: () => { this.charger(); this.cancelDelete(); },
+        error: () => { this.errorMessage = 'Erreur lors de la suppression.'; }
       });
     }
-    this.cancelDelete();
   }
 }

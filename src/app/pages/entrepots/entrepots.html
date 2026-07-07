@@ -5,27 +5,47 @@
       <h1>Entrepôts</h1>
       <p class="subtitle">{{ entrepots.length }} entrepôt(s)</p>
     </div>
-    <button class="btn-primary" (click)="openAddModal()">+ Ajouter un entrepôt</button>
+    <button class="btn-primary" (click)="openAdd()">+ Ajouter</button>
   </div>
 
-  <div class="entrepots-grid">
-    <div class="entrepot-card" *ngFor="let e of entrepots">
-      <div class="entrepot-top">
-        <h3>{{ e.nom }}</h3>
-        <div class="entrepot-actions">
-          <button (click)="openEditModal(e)">Modifier</button>
-          <button class="delete" (click)="confirmDelete(e)">Supprimer</button>
-        </div>
-      </div>
-      <p class="localisation">{{ e.localisation }}</p>
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Chargement...</p>
 
-      <div class="occupation-bar">
-        <div class="bar-track">
-          <div class="bar-fill" [style.width.%]="getTauxOccupation(e)" [class.high]="getTauxOccupation(e) > 80"></div>
-        </div>
-        <span class="occupation-label">{{ e.occupation }} / {{ e.capacite }} unités ({{ getTauxOccupation(e) }}%)</span>
-      </div>
-    </div>
+  <div class="table-container" *ngIf="!isLoading">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Adresse</th>
+          <th>Code</th>
+          <th>Capacité max</th>
+          <th>Statut</th>
+          <th>ID Entreprise</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of entrepots">
+          <td>{{ e.nom }}</td>
+          <td>{{ e.adresse }}</td>
+          <td>{{ e.code }}</td>
+          <td>{{ e.capaciteMax }}</td>
+          <td>
+            <span class="badge" [class.inactive]="!e.actif">
+              {{ e.actif ? 'Actif' : 'Inactif' }}
+            </span>
+          </td>
+          <td>{{ e.entrepriseId }}</td>
+          <td class="actions">
+            <button class="btn-icon" (click)="openEdit(e)">Modifier</button>
+            <button class="btn-icon delete" (click)="confirmDelete(e)">Supprimer</button>
+          </td>
+        </tr>
+        <tr *ngIf="entrepots.length === 0">
+          <td colspan="7" class="empty">Aucun entrepôt enregistré</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
@@ -33,29 +53,35 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <span class="kicker">{{ isEditMode ? 'Modification' : 'Nouvel entrepôt' }}</span>
     <h2>{{ isEditMode ? "Modifier l'entrepôt" : 'Ajouter un entrepôt' }}</h2>
-
     <div class="form-field">
       <label>Nom</label>
-      <input type="text" [(ngModel)]="currentEntrepot.nom" />
+      <input type="text" [(ngModel)]="current.nom" />
     </div>
     <div class="form-field">
-      <label>Localisation</label>
-      <input type="text" [(ngModel)]="currentEntrepot.localisation" />
+      <label>Adresse</label>
+      <input type="text" [(ngModel)]="current.adresse" />
     </div>
-    <div class="form-row">
-      <div class="form-field">
-        <label>Capacité totale</label>
-        <input type="number" [(ngModel)]="currentEntrepot.capacite" />
-      </div>
-      <div class="form-field">
-        <label>Occupation actuelle</label>
-        <input type="number" [(ngModel)]="currentEntrepot.occupation" />
-      </div>
+    <div class="form-field">
+      <label>Code</label>
+      <input type="text" [(ngModel)]="current.code" />
     </div>
-
+    <div class="form-field">
+      <label>Capacité maximale</label>
+      <input type="number" [(ngModel)]="current.capaciteMax" />
+    </div>
+    <div class="form-field">
+      <label>ID Entreprise</label>
+      <input type="number" [(ngModel)]="current.entrepriseId" />
+    </div>
+    <div class="form-field checkbox-field">
+      <label class="checkbox-label">
+        <input type="checkbox" [(ngModel)]="current.actif" />
+        <span>Entrepôt actif</span>
+      </label>
+    </div>
     <div class="modal-actions">
       <button class="btn-secondary" (click)="closeModal()">Annuler</button>
-      <button class="btn-primary" (click)="saveEntrepot()">Enregistrer</button>
+      <button class="btn-primary" (click)="save()">Enregistrer</button>
     </div>
   </div>
 </div>
@@ -64,10 +90,10 @@
   <div class="modal small" (click)="$event.stopPropagation()">
     <span class="kicker">Confirmation</span>
     <h2>Supprimer cet entrepôt ?</h2>
-    <p class="confirm-text">"{{ entrepotToDelete?.nom }}" sera définitivement supprimé.</p>
+    <p>"{{ toDelete?.nom }}" sera définitivement supprimé.</p>
     <div class="modal-actions">
       <button class="btn-secondary" (click)="cancelDelete()">Annuler</button>
-      <button class="btn-danger" (click)="deleteEntrepot()">Supprimer</button>
+      <button class="btn-danger" (click)="delete()">Supprimer</button>
     </div>
   </div>
 </div>

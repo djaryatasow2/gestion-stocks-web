@@ -2,14 +2,6 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RapportService } from '../../services/rapport.service';
 
-interface TypeRapport {
-  id: number;
-  titre: string;
-  description: string;
-  derniereGeneration: string;
-  type: string;
-}
-
 @Component({
   selector: 'app-rapports',
   standalone: true,
@@ -19,57 +11,51 @@ interface TypeRapport {
 })
 export class Rapports {
   isLoading = false;
+  errorMessage = '';
   messageSucces = '';
 
-  typesRapports: TypeRapport[] = [
-    { id: 1, titre: 'Rapport de stock global', description: 'État complet des stocks sur tous les entrepôts', derniereGeneration: '20/06/2026', type: 'stock' },
-    { id: 2, titre: 'Rapport des mouvements', description: 'Historique des entrées, sorties et transferts', derniereGeneration: '18/06/2026', type: 'mouvements' },
-    { id: 3, titre: "Rapport d'alertes", description: 'Liste des articles en stock bas ou en rupture', derniereGeneration: '21/06/2026', type: 'alertes' },
-    { id: 4, titre: 'Rapport par entreprise', description: 'Synthèse des stocks par entreprise cliente', derniereGeneration: '15/06/2026', type: 'entreprises' },
-  ];
+  constructor(private service: RapportService) {}
 
-  constructor(private rapportService: RapportService) {}
-
-  exporterPDF(rapport: TypeRapport): void {
+  exporterStocks(): void {
     this.isLoading = true;
-    this.rapportService.exporter('pdf').subscribe({
+    this.errorMessage = '';
+    this.service.exportStocks().subscribe({
       next: (blob) => {
         this.isLoading = false;
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${rapport.type}-rapport.pdf`;
+        a.download = 'rapport-stocks.csv';
         a.click();
         URL.revokeObjectURL(url);
-        this.messageSucces = 'Export PDF téléchargé !';
+        this.messageSucces = 'Export stocks téléchargé !';
         setTimeout(() => this.messageSucces = '', 3000);
       },
       error: () => {
         this.isLoading = false;
-        this.messageSucces = 'Export PDF non disponible pour le moment.';
-        setTimeout(() => this.messageSucces = '', 3000);
+        this.errorMessage = 'Erreur lors de l\'export des stocks.';
       }
     });
   }
 
-  exporterExcel(rapport: TypeRapport): void {
+  exporterMouvements(): void {
     this.isLoading = true;
-    this.rapportService.exporter('excel').subscribe({
+    this.errorMessage = '';
+    this.service.exportMouvements().subscribe({
       next: (blob) => {
         this.isLoading = false;
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${rapport.type}-rapport.xlsx`;
+        a.download = 'rapport-mouvements.csv';
         a.click();
         URL.revokeObjectURL(url);
-        this.messageSucces = 'Export Excel téléchargé !';
+        this.messageSucces = 'Export mouvements téléchargé !';
         setTimeout(() => this.messageSucces = '', 3000);
       },
       error: () => {
         this.isLoading = false;
-        this.messageSucces = 'Export Excel non disponible pour le moment.';
-        setTimeout(() => this.messageSucces = '', 3000);
+        this.errorMessage = 'Erreur lors de l\'export des mouvements.';
       }
     });
   }

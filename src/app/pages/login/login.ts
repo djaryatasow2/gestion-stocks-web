@@ -12,7 +12,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './login.scss',
 })
 export class Login {
-  email = '';
+  username = '';
   password = '';
   showPassword = false;
   isLoading = false;
@@ -26,20 +26,22 @@ export class Login {
 
   onSubmit(): void {
     this.errorMessage = '';
-    if (!this.email || !this.password) {
+    if (!this.username || !this.password) {
       this.errorMessage = 'Veuillez remplir tous les champs.';
       return;
     }
     this.isLoading = true;
-    this.authService.login(this.email, this.password).subscribe({
+    this.authService.login({ username: this.username, password: this.password }).subscribe({
       next: () => {
         this.isLoading = false;
         this.router.navigate(['/dashboard']);
       },
-      error: () => {
+      error: (err) => {
         this.isLoading = false;
-        this.authService.loginSimulation(this.email, this.password);
-        this.router.navigate(['/dashboard']);
+        if (err.status === 401) this.errorMessage = 'Identifiants incorrects.';
+        else if (err.status === 403) this.errorMessage = 'Accès refusé.';
+        else if (err.status === 0) this.errorMessage = 'Impossible de contacter le serveur.';
+        else this.errorMessage = 'Erreur serveur, réessayez.';
       }
     });
   }

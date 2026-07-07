@@ -1,12 +1,17 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class RapportService {
-  private url = 'http://localhost:8080/api/rapports';
-  constructor(private http: HttpClient) {}
-  exporter(format: 'pdf' | 'excel'): Observable<Blob> {
-    return this.http.get(`${this.url}/export?format=${format}`, { responseType: 'blob' });
+  private http = inject(HttpClient);
+  private apiUrl = '/api/rapports';
+
+  exportStocks(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/export`, { responseType: 'blob' });
+  }
+
+  exportMouvements(): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/mouvements/export`, { responseType: 'blob' });
   }
 }

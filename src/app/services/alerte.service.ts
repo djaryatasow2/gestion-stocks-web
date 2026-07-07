@@ -1,20 +1,47 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface Alerte {
-  id: number;
-  article: string;
-  entrepot: string;
-  niveauActuel: number;
-  seuilMinimum: number;
-  traitee: boolean;
+export interface AlerteDto {
+  id?: number;
+  typeAlerte: string;
+  message: string;
+  estTraite: boolean;
+  dateCreation?: string;
+  dateTraitement?: string;
+  stockId: number;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AlerteService {
-  private url = 'http://localhost:8080/api/alertes';
-  constructor(private http: HttpClient) {}
-  getAll(): Observable<Alerte[]> { return this.http.get<Alerte[]>(this.url); }
-  acquitter(id: number): Observable<void> { return this.http.patch<void>(`${this.url}/${id}/acquitter`, {}); }
+  private http = inject(HttpClient);
+  private apiUrl = '/api/alertes';
+
+  getAll(): Observable<AlerteDto[]> {
+    return this.http.get<AlerteDto[]>(this.apiUrl);
+  }
+
+  getById(id: number): Observable<AlerteDto> {
+    return this.http.get<AlerteDto>(`${this.apiUrl}/${id}`);
+  }
+
+  getNonTraitees(): Observable<AlerteDto[]> {
+    return this.http.get<AlerteDto[]>(`${this.apiUrl}/non-traitees`);
+  }
+
+  traiter(id: number): Observable<AlerteDto> {
+    return this.http.put<AlerteDto>(`${this.apiUrl}/${id}/traiter`, {});
+  }
+
+  acquitter(id: number): Observable<AlerteDto> {
+    return this.http.patch<AlerteDto>(`${this.apiUrl}/${id}/acquitter`, {});
+  }
+
+  create(a: AlerteDto): Observable<AlerteDto> {
+    return this.http.post<AlerteDto>(this.apiUrl, a);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }

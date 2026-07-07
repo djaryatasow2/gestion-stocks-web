@@ -5,21 +5,37 @@
       <h1>Catégories</h1>
       <p class="subtitle">{{ categories.length }} catégorie(s)</p>
     </div>
-    <button class="btn-primary" (click)="openAddModal()">+ Ajouter une catégorie</button>
+    <button class="btn-primary" (click)="openAdd()">+ Ajouter</button>
   </div>
 
-  <div class="categories-grid">
-    <div class="categorie-card" *ngFor="let cat of categories">
-      <div class="categorie-top">
-        <span class="categorie-count">{{ cat.nombreArticles }} articles</span>
-        <div class="categorie-actions">
-          <button (click)="openEditModal(cat)">Modifier</button>
-          <button class="delete" (click)="confirmDelete(cat)">Supprimer</button>
-        </div>
-      </div>
-      <h3>{{ cat.nom }}</h3>
-      <p>{{ cat.description }}</p>
-    </div>
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Chargement...</p>
+
+  <div class="table-container" *ngIf="!isLoading">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Description</th>
+          <th>Catégorie parente (ID)</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of categories">
+          <td>{{ c.nom }}</td>
+          <td>{{ c.description }}</td>
+          <td>{{ c.categorieParentId || '—' }}</td>
+          <td class="actions">
+            <button class="btn-icon" (click)="openEdit(c)">Modifier</button>
+            <button class="btn-icon delete" (click)="confirmDelete(c)">Supprimer</button>
+          </td>
+        </tr>
+        <tr *ngIf="categories.length === 0">
+          <td colspan="4" class="empty">Aucune catégorie enregistrée</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
@@ -27,19 +43,21 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <span class="kicker">{{ isEditMode ? 'Modification' : 'Nouvelle catégorie' }}</span>
     <h2>{{ isEditMode ? 'Modifier la catégorie' : 'Ajouter une catégorie' }}</h2>
-
     <div class="form-field">
       <label>Nom</label>
-      <input type="text" [(ngModel)]="currentCategorie.nom" />
+      <input type="text" [(ngModel)]="current.nom" />
     </div>
     <div class="form-field">
       <label>Description</label>
-      <input type="text" [(ngModel)]="currentCategorie.description" />
+      <input type="text" [(ngModel)]="current.description" />
     </div>
-
+    <div class="form-field">
+      <label>ID Catégorie parente (optionnel)</label>
+      <input type="number" [(ngModel)]="current.categorieParentId" />
+    </div>
     <div class="modal-actions">
       <button class="btn-secondary" (click)="closeModal()">Annuler</button>
-      <button class="btn-primary" (click)="saveCategorie()">Enregistrer</button>
+      <button class="btn-primary" (click)="save()">Enregistrer</button>
     </div>
   </div>
 </div>
@@ -48,10 +66,10 @@
   <div class="modal small" (click)="$event.stopPropagation()">
     <span class="kicker">Confirmation</span>
     <h2>Supprimer cette catégorie ?</h2>
-    <p class="confirm-text">"{{ categorieToDelete?.nom }}" sera définitivement supprimée.</p>
+    <p>"{{ toDelete?.nom }}" sera définitivement supprimée.</p>
     <div class="modal-actions">
       <button class="btn-secondary" (click)="cancelDelete()">Annuler</button>
-      <button class="btn-danger" (click)="deleteCategorie()">Supprimer</button>
+      <button class="btn-danger" (click)="delete()">Supprimer</button>
     </div>
   </div>
 </div>

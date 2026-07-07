@@ -7,8 +7,8 @@
   <div class="profile-top">
     <div class="avatar-large">{{ initiales }}</div>
     <div>
-      <h2>{{ nom }}</h2>
-      <span class="role-badge">{{ role }}</span>
+      <h2>{{ username }}</h2>
+      <span class="role-badge">{{ getRoleLabel() }}</span>
     </div>
   </div>
 
@@ -17,20 +17,16 @@
 
   <div class="profile-grid">
     <div class="panel">
-      <h3>Informations personnelles</h3>
+      <h3>Informations</h3>
       <div class="form-field">
-        <label>Nom complet</label>
-        <input type="text" [(ngModel)]="nom" />
-      </div>
-      <div class="form-field">
-        <label>Email</label>
-        <input type="email" [(ngModel)]="email" />
+        <label>Nom d'utilisateur</label>
+        <input type="text" [value]="username" disabled />
       </div>
       <div class="form-field">
         <label>Rôle</label>
-        <input type="text" [value]="role" disabled />
+        <input type="text" [value]="getRoleLabel()" disabled />
       </div>
-      <button class="btn-primary" (click)="enregistrerInfos()">Enregistrer</button>
+      <button class="btn-danger" (click)="deconnexion()">Se déconnecter</button>
     </div>
 
     <div class="panel">

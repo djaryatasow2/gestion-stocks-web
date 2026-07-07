@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UtilisateurService, Utilisateur } from '../../services/utilisateur.service';
+import { UtilisateurService, UserDto } from '../../services/utilisateur.service';
 
 @Component({
   selector: 'app-utilisateurs',
@@ -11,78 +11,68 @@ import { UtilisateurService, Utilisateur } from '../../services/utilisateur.serv
   styleUrl: './utilisateurs.scss',
 })
 export class Utilisateurs implements OnInit {
-  utilisateurs: Utilisateur[] = [];
-  roles = ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE'];
+  utilisateurs: UserDto[] = [];
+  roles = ['ADMIN', 'GESTIONNAIRE_STOCK', 'RESPONSABLE_ENTREPOT', 'MOBILE'];
   showModal = false;
   isEditMode = false;
-  currentUtilisateur: Utilisateur = this.empty();
-  utilisateurToDelete: Utilisateur | null = null;
+  current: UserDto = this.empty();
+  toDelete: UserDto | null = null;
   showDeleteConfirm = false;
   isLoading = false;
+  errorMessage = '';
 
-  constructor(private utilisateurService: UtilisateurService) {}
+  constructor(private service: UtilisateurService) {}
 
-  ngOnInit(): void {
-    this.charger();
-  }
+  ngOnInit(): void { this.charger(); }
 
   charger(): void {
     this.isLoading = true;
-    this.utilisateurService.getAll().subscribe({
+    this.errorMessage = '';
+    this.service.getAll().subscribe({
       next: (data) => { this.utilisateurs = data; this.isLoading = false; },
-      error: () => {
-        this.isLoading = false;
-        this.utilisateurs = [
-          { id: 1, nom: 'Djaryata Sow', email: 'djaryata@smartms.mr', role: 'GESTIONNAIRE', entreprise: 'SMART MS SA', actif: true },
-          { id: 2, nom: 'Ahmed Vall', email: 'ahmed@smartms.mr', role: 'RESPONSABLE', entreprise: 'SMART MS SA', actif: true },
-          { id: 3, nom: 'Fatima Mint', email: 'admin@smartms.mr', role: 'ADMIN', entreprise: 'SMART MS SA', actif: true },
-        ];
-      }
+      error: () => { this.isLoading = false; this.errorMessage = 'Impossible de charger les utilisateurs.'; }
     });
   }
 
-  empty(): Utilisateur {
-    return { id: 0, nom: '', email: '', role: 'GESTIONNAIRE', entreprise: '', actif: true };
+  empty(): UserDto {
+    return { username: '', password: '', email: '', nom: '', prenom: '', role: 'GESTIONNAIRE_STOCK', active: true, entrepriseId: 0 };
   }
 
-  openAddModal() { this.isEditMode = false; this.currentUtilisateur = this.empty(); this.showModal = true; }
-  openEditModal(u: Utilisateur) { this.isEditMode = true; this.currentUtilisateur = { ...u }; this.showModal = true; }
-  closeModal() { this.showModal = false; }
+  openAdd(): void { this.isEditMode = false; this.current = this.empty(); this.showModal = true; }
+  openEdit(u: UserDto): void { this.isEditMode = true; this.current = { ...u }; this.showModal = true; }
+  closeModal(): void { this.showModal = false; }
 
-  saveUtilisateur() {
-    if (this.isEditMode) {
-      this.utilisateurService.update(this.currentUtilisateur.id, this.currentUtilisateur).subscribe({
+  save(): void {
+    if (this.isEditMode && this.current.id) {
+      this.service.update(this.current.id, this.current).subscribe({
         next: () => { this.charger(); this.closeModal(); },
-        error: () => {
-          const i = this.utilisateurs.findIndex(u => u.id === this.currentUtilisateur.id);
-          if (i !== -1) this.utilisateurs[i] = { ...this.currentUtilisateur };
-          this.closeModal();
-        }
+        error: () => { this.errorMessage = 'Erreur lors de la modification.'; }
       });
     } else {
-      this.utilisateurService.create(this.currentUtilisateur).subscribe({
+      this.service.create(this.current).subscribe({
         next: () => { this.charger(); this.closeModal(); },
-        error: () => {
-          const newId = Math.max(0, ...this.utilisateurs.map(u => u.id)) + 1;
-          this.utilisateurs.push({ ...this.currentUtilisateur, id: newId });
-          this.closeModal();
-        }
+        error: () => { this.errorMessage = 'Erreur lors de la création.'; }
       });
     }
   }
 
-  confirmDelete(u: Utilisateur) { this.utilisateurToDelete = u; this.showDeleteConfirm = true; }
-  cancelDelete() { this.utilisateurToDelete = null; this.showDeleteConfirm = false; }
+  confirmDelete(u: UserDto): void { this.toDelete = u; this.showDeleteConfirm = true; }
+  cancelDelete(): void { this.toDelete = null; this.showDeleteConfirm = false; }
 
-  deleteUtilisateur() {
-    if (this.utilisateurToDelete) {
-      this.utilisateurService.delete(this.utilisateurToDelete.id).subscribe({
-        next: () => this.charger(),
-        error: () => {
-          this.utilisateurs = this.utilisateurs.filter(u => u.id !== this.utilisateurToDelete!.id);
-        }
+  delete(): void {
+    if (this.toDelete?.id) {
+      this.service.delete(this.toDelete.id).subscribe({
+        next: () => { this.charger(); this.cancelDelete(); },
+        error: () => { this.errorMessage = 'Erreur lors de la suppression.'; }
       });
     }
-    this.cancelDelete();
+  }
+
+  getRoleLabel(role: string): string {
+    if (role === 'ADMIN') return 'Administrateur';
+    if (role === 'GESTIONNAIRE_STOCK') return 'Gestionnaire Stock';
+    if (role === 'RESPONSABLE_ENTREPOT') return 'Responsable Entrepôt';
+    if (role === 'MOBILE') return 'Mobile';
+    return role;
   }
 }

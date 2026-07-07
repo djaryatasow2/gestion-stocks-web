@@ -11,8 +11,7 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './profile.css',
 })
 export class Profile {
-  nom = '';
-  email = '';
+  username = '';
   role = '';
   ancienMotDePasse = '';
   nouveauMotDePasse = '';
@@ -21,16 +20,8 @@ export class Profile {
   messageType = '';
 
   constructor(private authService: AuthService) {
-    this.nom = this.authService.getNom();
-    this.email = localStorage.getItem('email') || '';
+    this.username = this.authService.getUsername();
     this.role = this.authService.getRole();
-  }
-
-  enregistrerInfos(): void {
-    localStorage.setItem('nom', this.nom);
-    this.message = 'Informations mises à jour avec succès.';
-    this.messageType = 'succes';
-    setTimeout(() => this.message = '', 3000);
   }
 
   changerMotDePasse(): void {
@@ -49,16 +40,25 @@ export class Profile {
       this.messageType = 'erreur';
       return;
     }
-    this.message = 'Mot de passe modifié avec succès.';
-    this.messageType = 'succes';
-    this.ancienMotDePasse = '';
-    this.nouveauMotDePasse = '';
-    this.confirmationMotDePasse = '';
+    this.message = 'Fonctionnalité non disponible pour le moment.';
+    this.messageType = 'erreur';
     setTimeout(() => this.message = '', 3000);
   }
 
+  deconnexion(): void {
+    this.authService.logout();
+  }
+
   get initiales(): string {
-    if (!this.nom) return 'US';
-    return this.nom.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+    if (!this.username) return 'US';
+    return this.username.slice(0, 2).toUpperCase();
+  }
+
+  getRoleLabel(): string {
+    if (this.role === 'ADMIN') return 'Administrateur';
+    if (this.role === 'GESTIONNAIRE_STOCK') return 'Gestionnaire de Stock';
+    if (this.role === 'RESPONSABLE_ENTREPOT') return 'Responsable Entrepôt';
+    if (this.role === 'MOBILE') return 'Utilisateur Mobile';
+    return this.role;
   }
 }

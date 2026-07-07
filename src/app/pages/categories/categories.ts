@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CategorieService, Categorie } from '../../services/categorie.service';
+import { CategorieService, CategorieDto } from '../../services/categorie.service';
 
 @Component({
   selector: 'app-categories',
@@ -11,77 +11,59 @@ import { CategorieService, Categorie } from '../../services/categorie.service';
   styleUrl: './categories.scss',
 })
 export class Categories implements OnInit {
-  categories: Categorie[] = [];
+  categories: CategorieDto[] = [];
   showModal = false;
   isEditMode = false;
-  currentCategorie: Categorie = this.empty();
-  categorieToDelete: Categorie | null = null;
+  current: CategorieDto = this.empty();
+  toDelete: CategorieDto | null = null;
   showDeleteConfirm = false;
   isLoading = false;
+  errorMessage = '';
 
-  constructor(private categorieService: CategorieService) {}
+  constructor(private service: CategorieService) {}
 
-  ngOnInit(): void {
-    this.charger();
-  }
+  ngOnInit(): void { this.charger(); }
 
   charger(): void {
     this.isLoading = true;
-    this.categorieService.getAll().subscribe({
+    this.errorMessage = '';
+    this.service.getAll().subscribe({
       next: (data) => { this.categories = data; this.isLoading = false; },
-      error: () => {
-        this.isLoading = false;
-        this.categories = [
-          { id: 1, nom: 'Informatique', description: 'Matériel informatique', nombreArticles: 38 },
-          { id: 2, nom: 'Mobilier', description: 'Mobilier de bureau', nombreArticles: 15 },
-          { id: 3, nom: 'Fournitures', description: 'Fournitures de bureau', nombreArticles: 62 },
-        ];
-      }
+      error: () => { this.isLoading = false; this.errorMessage = 'Impossible de charger les catégories.'; }
     });
   }
 
-  empty(): Categorie {
-    return { id: 0, nom: '', description: '', nombreArticles: 0 };
+  empty(): CategorieDto {
+    return { nom: '', description: '', categorieParentId: null };
   }
 
-  openAddModal() { this.isEditMode = false; this.currentCategorie = this.empty(); this.showModal = true; }
-  openEditModal(c: Categorie) { this.isEditMode = true; this.currentCategorie = { ...c }; this.showModal = true; }
-  closeModal() { this.showModal = false; }
+  openAdd(): void { this.isEditMode = false; this.current = this.empty(); this.showModal = true; }
+  openEdit(c: CategorieDto): void { this.isEditMode = true; this.current = { ...c }; this.showModal = true; }
+  closeModal(): void { this.showModal = false; }
 
-  saveCategorie() {
-    if (this.isEditMode) {
-      this.categorieService.update(this.currentCategorie.id, this.currentCategorie).subscribe({
+  save(): void {
+    if (this.isEditMode && this.current.id) {
+      this.service.update(this.current.id, this.current).subscribe({
         next: () => { this.charger(); this.closeModal(); },
-        error: () => {
-          const i = this.categories.findIndex(c => c.id === this.currentCategorie.id);
-          if (i !== -1) this.categories[i] = { ...this.currentCategorie };
-          this.closeModal();
-        }
+        error: () => { this.errorMessage = 'Erreur lors de la modification.'; }
       });
     } else {
-      this.categorieService.create(this.currentCategorie).subscribe({
+      this.service.create(this.current).subscribe({
         next: () => { this.charger(); this.closeModal(); },
-        error: () => {
-          const newId = Math.max(0, ...this.categories.map(c => c.id)) + 1;
-          this.categories.push({ ...this.currentCategorie, id: newId, nombreArticles: 0 });
-          this.closeModal();
-        }
+        error: () => { this.errorMessage = 'Erreur lors de la création.'; }
       });
     }
   }
 
-  confirmDelete(c: Categorie) { this.categorieToDelete = c; this.showDeleteConfirm = true; }
-  cancelDelete() { this.categorieToDelete = null; this.showDeleteConfirm = false; }
+  confirmDelete(c: CategorieDto): void { this.toDelete = c; this.showDeleteConfirm = true; }
+  cancelDelete(): void { this.toDelete = null; this.showDeleteConfirm = false; }
 
-  deleteCategorie() {
-    if (this.categorieToDelete) {
-      this.categorieService.delete(this.categorieToDelete.id).subscribe({
-        next: () => this.charger(),
-        error: () => {
-          this.categories = this.categories.filter(c => c.id !== this.categorieToDelete!.id);
-        }
+  delete(): void {
+    if (this.toDelete?.id) {
+      this.service.delete(this.toDelete.id).subscribe({
+        next: () => { this.charger(); this.cancelDelete(); },
+        error: () => { this.errorMessage = 'Erreur lors de la suppression.'; }
       });
     }
-    this.cancelDelete();
   }
 }

@@ -1,7 +1,13 @@
-<router-outlet></router-outlet>
-<app-sidebar *ngIf="!isLoginPage"></app-sidebar>
-<app-navbar *ngIf="!isLoginPage"></app-navbar>
+<div class="app-layout" *ngIf="!isLoginPage">
+  <app-sidebar></app-sidebar>
+  <div class="app-main">
+    <app-navbar></app-navbar>
+    <main class="app-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>
 
-<main [class.with-layout]="!isLoginPage">
+<ng-container *ngIf="isLoginPage">
   <router-outlet></router-outlet>
-</main>
+</ng-container>

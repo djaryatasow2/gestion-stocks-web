@@ -3,55 +3,64 @@
     <div>
       <span class="kicker">Stocks</span>
       <h1>Mouvements de stock</h1>
-      <p class="subtitle">{{ mouvements.length }} mouvement(s) enregistré(s)</p>
+      <p class="subtitle">{{ mouvements.length }} mouvement(s)</p>
     </div>
     <button class="btn-primary" (click)="openModal()">+ Nouveau mouvement</button>
   </div>
 
-  <div class="stats-mouvements">
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Chargement...</p>
+
+  <div class="stats-mouvements" *ngIf="!isLoading">
     <div class="stat-card vert">
-      <span class="stat-value">{{ mouvements.length > 0 ? mouvements.filter(m => m.type === 'ENTREE').length : 0 }}</span>
+      <span class="stat-value">{{ mouvements.filter(m => m.typeMouvement === 'ENTREE').length }}</span>
       <span class="stat-label">Entrées</span>
     </div>
     <div class="stat-card rouge">
-      <span class="stat-value">{{ mouvements.length > 0 ? mouvements.filter(m => m.type === 'SORTIE').length : 0 }}</span>
+      <span class="stat-value">{{ mouvements.filter(m => m.typeMouvement === 'SORTIE').length }}</span>
       <span class="stat-label">Sorties</span>
     </div>
     <div class="stat-card bleu">
-      <span class="stat-value">{{ mouvements.length > 0 ? mouvements.filter(m => m.type === 'TRANSFERT').length : 0 }}</span>
+      <span class="stat-value">{{ mouvements.filter(m => m.typeMouvement === 'TRANSFERT').length }}</span>
       <span class="stat-label">Transferts</span>
     </div>
   </div>
 
-  <div class="table-container">
+  <div class="table-container" *ngIf="!isLoading">
     <table>
       <thead>
         <tr>
           <th>Date</th>
           <th>Type</th>
-          <th>Article</th>
-          <th>Source</th>
-          <th>Destination</th>
+          <th>Référence</th>
           <th>Quantité</th>
-          <th>Utilisateur</th>
+          <th>Motif</th>
+          <th>Coût unitaire</th>
+          <th>Prix vente</th>
+          <th>ID Stock</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let m of mouvements">
-          <td class="date">{{ m.date }}</td>
+          <td>{{ m.dateMouvement | date:'dd/MM/yyyy HH:mm' }}</td>
           <td>
-            <span class="badge" [ngClass]="m.type.toLowerCase()">
-              {{ getTypeLabel(m.type) }}
+            <span class="badge" [ngClass]="m.typeMouvement ? m.typeMouvement.toLowerCase() : ''">
+              {{ getTypeLabel(m.typeMouvement || '') }}
             </span>
           </td>
-          <td class="nom">{{ m.article }}</td>
-          <td class="muted">{{ m.entrepotSource || '—' }}</td>
-          <td class="muted">{{ m.entrepotDestination || '—' }}</td>
+          <td>{{ m.reference }}</td>
           <td>{{ m.quantite }}</td>
-          <td class="muted">{{ m.utilisateur }}</td>
+          <td>{{ m.motif }}</td>
+          <td>{{ m.coutUnitaire }}</td>
+          <td>{{ m.prixVente }}</td>
+          <td>{{ m.stockId }}</td>
+          <td>
+            <button class="btn-icon delete" (click)="delete(m.id!)">Supprimer</button>
+          </td>
         </tr>
         <tr *ngIf="mouvements.length === 0">
-          <td colspan="7" class="empty">Aucun mouvement enregistré</td>
+          <td colspan="9" class="empty">Aucun mouvement enregistré</td>
         </tr>
       </tbody>
     </table>
@@ -62,50 +71,43 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <span class="kicker">Enregistrement</span>
     <h2>Nouveau mouvement</h2>
-
     <div class="form-field">
       <label>Type de mouvement</label>
-      <select [(ngModel)]="currentMouvement.type">
-        <option value="ENTREE">Entrée</option>
-        <option value="SORTIE">Sortie</option>
-        <option value="TRANSFERT">Transfert</option>
+      <select [(ngModel)]="current.typeMouvement">
+        <option *ngFor="let t of typesMouvement" [value]="t">{{ getTypeLabel(t) }}</option>
       </select>
     </div>
-
     <div class="form-field">
-      <label>Article</label>
-      <select [(ngModel)]="currentMouvement.article">
-        <option value="">-- Choisir un article --</option>
-        <option *ngFor="let a of articles" [value]="a">{{ a }}</option>
-      </select>
+      <label>ID Stock</label>
+      <input type="number" [(ngModel)]="current.stockId" />
     </div>
-
-    <div class="form-field" *ngIf="currentMouvement.type === 'SORTIE' || currentMouvement.type === 'TRANSFERT'">
-      <label>Entrepôt source</label>
-      <select [(ngModel)]="currentMouvement.entrepotSource">
-        <option value="">-- Choisir --</option>
-        <option *ngFor="let e of entrepots" [value]="e">{{ e }}</option>
-      </select>
+    <div class="form-field">
+      <label>Référence</label>
+      <input type="text" [(ngModel)]="current.reference" />
     </div>
-
-    <div class="form-field" *ngIf="currentMouvement.type === 'ENTREE' || currentMouvement.type === 'TRANSFERT'">
-      <label>Entrepôt destination</label>
-      <select [(ngModel)]="currentMouvement.entrepotDestination">
-        <option value="">-- Choisir --</option>
-        <option *ngFor="let e of entrepots" [value]="e">{{ e }}</option>
-      </select>
+    <div class="form-field">
+      <label>Quantité</label>
+      <input type="number" [(ngModel)]="current.quantite" min="1" />
     </div>
-
-    <div class="form-row">
-      <div class="form-field">
-        <label>Quantité</label>
-        <input type="number" [(ngModel)]="currentMouvement.quantite" min="1" />
-      </div>
-      <div class="form-field">
-        <label>Date</label>
-        <input type="date" [(ngModel)]="currentMouvement.date" />
-      </div>
+    <div class="form-field">
+      <label>Motif</label>
+      <input type="text" [(ngModel)]="current.motif" />
     </div>
-
+    <div class="form-field">
+      <label>Coût unitaire</label>
+      <input type="number" [(ngModel)]="current.coutUnitaire" />
+    </div>
+    <div class="form-field">
+      <label>Prix de vente</label>
+      <input type="number" [(ngModel)]="current.prixVente" />
+    </div>
+    <div class="form-field">
+      <label>ID Utilisateur</label>
+      <input type="number" [(ngModel)]="current.userId" />
+    </div>
     <div class="modal-actions">
       <button class="btn-secondary" (click)="closeModal()">Annuler</button>
+      <button class="btn-primary" (click)="save()">Enregistrer</button>
+    </div>
+  </div>
+</div>

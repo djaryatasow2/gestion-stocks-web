@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AlerteService, Alerte } from '../../services/alerte.service';
+import { AlerteService, AlerteDto } from '../../services/alerte.service';
 
 @Component({
   selector: 'app-alertes',
@@ -10,47 +10,52 @@ import { AlerteService, Alerte } from '../../services/alerte.service';
   styleUrl: './alertes.scss',
 })
 export class Alertes implements OnInit {
-  alertes: Alerte[] = [];
+  alertes: AlerteDto[] = [];
   isLoading = false;
+  errorMessage = '';
 
-  constructor(private alerteService: AlerteService) {}
+  constructor(private service: AlerteService) {}
 
-  ngOnInit(): void {
-    this.charger();
-  }
+  ngOnInit(): void { this.charger(); }
 
   charger(): void {
     this.isLoading = true;
-    this.alerteService.getAll().subscribe({
+    this.errorMessage = '';
+    this.service.getAll().subscribe({
       next: (data) => { this.alertes = data; this.isLoading = false; },
-      error: () => {
-        this.isLoading = false;
-        this.alertes = [
-          { id: 1, article: 'Souris sans fil', entrepot: 'Entrepôt A', niveauActuel: 5, seuilMinimum: 15, traitee: false },
-          { id: 2, article: 'Chaise de bureau', entrepot: 'Entrepôt B', niveauActuel: 0, seuilMinimum: 5, traitee: false },
-          { id: 3, article: 'Câble HDMI', entrepot: 'Entrepôt C', niveauActuel: 2, seuilMinimum: 10, traitee: false },
-          { id: 4, article: 'Toner imprimante', entrepot: 'Entrepôt A', niveauActuel: 1, seuilMinimum: 8, traitee: true },
-        ];
-      }
+      error: () => { this.isLoading = false; this.errorMessage = 'Impossible de charger les alertes.'; }
     });
   }
 
-  get alertesActives(): Alerte[] {
-    return this.alertes.filter(a => !a.traitee);
+  get alertesActives(): AlerteDto[] {
+    return this.alertes.filter(a => !a.estTraite);
   }
 
-  get alertesTraitees(): Alerte[] {
-    return this.alertes.filter(a => a.traitee);
+  get alertesTraitees(): AlerteDto[] {
+    return this.alertes.filter(a => a.estTraite);
   }
 
-  marquerTraitee(alerte: Alerte): void {
-    this.alerteService.acquitter(alerte.id).subscribe({
-      next: () => { alerte.traitee = true; },
-      error: () => { alerte.traitee = true; }
+  traiter(a: AlerteDto): void {
+    if (!a.id) return;
+    this.service.traiter(a.id).subscribe({
+      next: () => { a.estTraite = true; },
+      error: () => { this.errorMessage = 'Erreur lors du traitement.'; }
     });
   }
 
-  isRupture(a: Alerte): boolean {
-    return a.niveauActuel === 0;
+  acquitter(a: AlerteDto): void {
+    if (!a.id) return;
+    this.service.acquitter(a.id).subscribe({
+      next: () => { a.estTraite = true; },
+      error: () => { this.errorMessage = 'Erreur lors de l\'acquittement.'; }
+    });
+  }
+
+  delete(a: AlerteDto): void {
+    if (!a.id) return;
+    this.service.delete(a.id).subscribe({
+      next: () => this.charger(),
+      error: () => { this.errorMessage = 'Erreur lors de la suppression.'; }
+    });
   }
 }

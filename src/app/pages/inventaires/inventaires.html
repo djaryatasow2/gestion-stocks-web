@@ -1,0 +1,163 @@
+<div class="inventaires-page">
+  <div class="page-header">
+    <div>
+      <span class="kicker">Inventaire</span>
+      <h1>Inventaires</h1>
+      <p class="subtitle">{{ inventaires.length }} inventaire(s)</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="openSession()">+ Nouvelle session</button>
+      <button class="btn-primary" (click)="openAdd()">+ Nouvel inventaire</button>
+    </div>
+  </div>
+
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Chargement...</p>
+
+  <div class="table-container" *ngIf="!isLoading">
+    <table>
+      <thead>
+        <tr>
+          <th>Nom</th>
+          <th>Date début</th>
+          <th>Date fin</th>
+          <th>Statut</th>
+          <th>ID Entreprise</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let i of inventaires">
+          <td>{{ i.nom }}</td>
+          <td>{{ i.dateDebut }}</td>
+          <td>{{ i.dateFin }}</td>
+          <td><span class="badge">{{ i.statut }}</span></td>
+          <td>{{ i.entrepriseId }}</td>
+          <td class="actions">
+            <button class="btn-icon" (click)="openEdit(i)">Modifier</button>
+            <button class="btn-icon delete" (click)="confirmDelete(i)">Supprimer</button>
+          </td>
+        </tr>
+        <tr *ngIf="inventaires.length === 0">
+          <td colspan="6" class="empty">Aucun inventaire enregistré</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <span class="kicker">{{ isEditMode ? 'Modification' : 'Nouvel inventaire' }}</span>
+    <h2>{{ isEditMode ? "Modifier l'inventaire" : 'Ajouter un inventaire' }}</h2>
+    <div class="form-field">
+      <label>Nom</label>
+      <input type="text" [(ngModel)]="current.nom" />
+    </div>
+    <div class="form-field">
+      <label>Date début</label>
+      <input type="date" [(ngModel)]="current.dateDebut" />
+    </div>
+    <div class="form-field">
+      <label>Date fin</label>
+      <input type="date" [(ngModel)]="current.dateFin" />
+    </div>
+    <div class="form-field">
+      <label>Statut</label>
+      <select [(ngModel)]="current.statut">
+        <option value="EN_COURS">En cours</option>
+        <option value="TERMINE">Terminé</option>
+        <option value="ANNULE">Annulé</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>ID Entreprise</label>
+      <input type="number" [(ngModel)]="current.entrepriseId" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="closeModal()">Annuler</button>
+      <button class="btn-primary" (click)="save()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showSessionModal" (click)="closeSession()">
+  <div class="modal large" (click)="$event.stopPropagation()">
+    <span class="kicker">Session d'inventaire</span>
+    <h2>Nouvelle session d'inventaire</h2>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label>ID Entreprise</label>
+        <input type="number" [(ngModel)]="currentSession.entrepriseId" />
+      </div>
+      <div class="form-field">
+        <label>ID Entrepôt</label>
+        <input type="number" [(ngModel)]="currentSession.entrepotId" />
+      </div>
+    </div>
+
+    <h3>Lignes d'inventaire</h3>
+    <div class="form-row">
+      <div class="form-field">
+        <label>ID Article</label>
+        <input type="number" [(ngModel)]="currentLigne.articleId" />
+      </div>
+      <div class="form-field">
+        <label>Qté physique</label>
+        <input type="number" [(ngModel)]="currentLigne.quantitePhysique" />
+      </div>
+      <div class="form-field">
+        <label>Qté système</label>
+        <input type="number" [(ngModel)]="currentLigne.quantiteSysteme" />
+      </div>
+      <div class="form-field">
+        <label>Remarques</label>
+        <input type="text" [(ngModel)]="currentLigne.remarques" />
+      </div>
+    </div>
+    <button class="btn-secondary" (click)="ajouterLigne()">+ Ajouter ligne</button>
+
+    <table *ngIf="currentSession.lignes.length > 0">
+      <thead>
+        <tr>
+          <th>ID Article</th>
+          <th>Qté physique</th>
+          <th>Qté système</th>
+          <th>Écart</th>
+          <th>Remarques</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let l of currentSession.lignes; let i = index">
+          <td>{{ l.articleId }}</td>
+          <td>{{ l.quantitePhysique }}</td>
+          <td>{{ l.quantiteSysteme }}</td>
+          <td>{{ l.ecart }}</td>
+          <td>{{ l.remarques }}</td>
+          <td>
+            <button class="btn-icon delete" (click)="supprimerLigne(i)">Supprimer</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="closeSession()">Annuler</button>
+      <button class="btn-primary" (click)="soumettreSession()">Soumettre</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+  <div class="modal small" (click)="$event.stopPropagation()">
+    <span class="kicker">Confirmation</span>
+    <h2>Supprimer cet inventaire ?</h2>
+    <p>"{{ toDelete?.nom }}" sera définitivement supprimé.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="cancelDelete()">Annuler</button>
+      <button class="btn-danger" (click)="delete()">Supprimer</button>
+    </div>
+  </div>
+</div>

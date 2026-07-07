@@ -2,23 +2,30 @@
   <div class="page-header">
     <span class="kicker">Exportation</span>
     <h1>Rapports</h1>
-    <p class="subtitle">Générez et exportez vos rapports d'activité</p>
+    <p class="subtitle">Exportez vos données</p>
   </div>
 
   <p class="succes-message" *ngIf="messageSucces">{{ messageSucces }}</p>
-  <p class="loading-message" *ngIf="isLoading">Génération en cours...</p>
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Génération en cours...</p>
 
   <div class="rapports-grid">
-    <div class="rapport-card" *ngFor="let r of typesRapports">
-      <h3>{{ r.titre }}</h3>
-      <p>{{ r.description }}</p>
-      <span class="last-gen">Dernière génération : {{ r.derniereGeneration }}</span>
+    <div class="rapport-card">
+      <h3>Rapport des stocks</h3>
+      <p>État complet des stocks sur tous les entrepôts</p>
       <div class="rapport-actions">
-        <button class="btn-export" (click)="exporterPDF(r)" [disabled]="isLoading">
-          Exporter PDF
+        <button class="btn-export" (click)="exporterStocks()" [disabled]="isLoading">
+          Exporter stocks
         </button>
-        <button class="btn-export secondary" (click)="exporterExcel(r)" [disabled]="isLoading">
-          Exporter Excel
+      </div>
+    </div>
+
+    <div class="rapport-card">
+      <h3>Rapport des mouvements</h3>
+      <p>Historique des entrées, sorties et transferts</p>
+      <div class="rapport-actions">
+        <button class="btn-export" (click)="exporterMouvements()" [disabled]="isLoading">
+          Exporter mouvements
         </button>
       </div>
     </div>

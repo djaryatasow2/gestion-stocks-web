@@ -1,21 +1,43 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface Entrepot {
-  id: number;
+export interface EntrepotDto {
+  id?: number;
   nom: string;
-  localisation: string;
-  capacite: number;
-  occupation: number;
+  adresse: string;
+  code: string;
+  capaciteMax: number;
+  actif: boolean;
+  entrepriseId: number;
 }
 
 @Injectable({ providedIn: 'root' })
 export class EntrepotService {
-  private url = 'http://localhost:8080/api/entrepots';
-  constructor(private http: HttpClient) {}
-  getAll(): Observable<Entrepot[]> { return this.http.get<Entrepot[]>(this.url); }
-  create(e: Entrepot): Observable<Entrepot> { return this.http.post<Entrepot>(this.url, e); }
-  update(id: number, e: Entrepot): Observable<Entrepot> { return this.http.put<Entrepot>(`${this.url}/${id}`, e); }
-  delete(id: number): Observable<void> { return this.http.delete<void>(`${this.url}/${id}`); }
+  private http = inject(HttpClient);
+  private apiUrl = '/api/entrepots';
+
+  getAll(): Observable<EntrepotDto[]> {
+    return this.http.get<EntrepotDto[]>(this.apiUrl);
+  }
+
+  getById(id: number): Observable<EntrepotDto> {
+    return this.http.get<EntrepotDto>(`${this.apiUrl}/${id}`);
+  }
+
+  getByEntreprise(entrepriseId: number): Observable<EntrepotDto[]> {
+    return this.http.get<EntrepotDto[]>(`${this.apiUrl}/entreprise/${entrepriseId}`);
+  }
+
+  create(e: EntrepotDto): Observable<EntrepotDto> {
+    return this.http.post<EntrepotDto>(this.apiUrl, e);
+  }
+
+  update(id: number, e: EntrepotDto): Observable<EntrepotDto> {
+    return this.http.put<EntrepotDto>(`${this.apiUrl}/${id}`, e);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }

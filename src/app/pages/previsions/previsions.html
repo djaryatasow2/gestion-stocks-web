@@ -1,48 +1,78 @@
 <div class="previsions-page">
   <div class="page-header">
-    <span class="kicker">Anticipation</span>
-    <h1>Prévisions de stock</h1>
-    <p class="subtitle">Basées sur l'historique des mouvements</p>
+    <div>
+      <span class="kicker">Anticipation</span>
+      <h1>Prévisions de stock</h1>
+      <p class="subtitle">{{ previsions.length }} prévision(s)</p>
+    </div>
+    <button class="btn-primary" (click)="openAdd()">+ Ajouter</button>
   </div>
 
-  <div class="horizon-selector">
-    <button [class.active]="horizon === 7" (click)="changerHorizon(7)">7 jours</button>
-    <button [class.active]="horizon === 30" (click)="changerHorizon(30)">30 jours</button>
-    <button [class.active]="horizon === 90" (click)="changerHorizon(90)">90 jours</button>
-  </div>
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Chargement...</p>
 
-  <div class="panel chart-panel">
-    <h2>Tendance de consommation vs prévision</h2>
+  <div class="panel chart-panel" *ngIf="!isLoading && previsions.length > 0">
+    <h2>Tendance des quantités prévues</h2>
     <div class="chart-wrapper">
       <canvas #courbeChart></canvas>
     </div>
   </div>
 
-  <div class="panel">
-    <h2>Estimation de rupture par article</h2>
+  <div class="table-container" *ngIf="!isLoading">
     <table>
       <thead>
         <tr>
-          <th>Article</th>
-          <th>Entrepôt</th>
-          <th>Stock actuel</th>
-          <th>Consommation / jour</th>
-          <th>Rupture estimée</th>
+          <th>Période début</th>
+          <th>Période fin</th>
+          <th>Quantité prévue</th>
+          <th>Méthode</th>
+          <th>Niveau confiance</th>
+          <th>ID Article</th>
+          <th>ID Entrepôt</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let p of previsions">
-          <td class="nom">{{ p.article }}</td>
-          <td>{{ p.entrepot }}</td>
-          <td>{{ p.stockActuel }}</td>
-          <td>{{ p.consommationMoyenne }}</td>
-          <td>
-            <span class="badge" [ngClass]="getUrgenceClass(p.joursAvantRupture)">
-              {{ p.joursAvantRupture }} jour(s)
-            </span>
+          <td>{{ p.periodeDebut }}</td>
+          <td>{{ p.periodeFin }}</td>
+          <td>{{ p.quantitePrevue }}</td>
+          <td>{{ p.methodePrevision }}</td>
+          <td>{{ p.niveauConfiance }}</td>
+          <td>{{ p.articleId }}</td>
+          <td>{{ p.entrepotId }}</td>
+          <td class="actions">
+            <button class="btn-icon" (click)="openEdit(p)">Modifier</button>
+            <button class="btn-icon delete" (click)="confirmDelete(p)">Supprimer</button>
           </td>
+        </tr>
+        <tr *ngIf="previsions.length === 0">
+          <td colspan="8" class="empty">Aucune prévision enregistrée</td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <span class="kicker">{{ isEditMode ? 'Modification' : 'Nouvelle prévision' }}</span>
+    <h2>{{ isEditMode ? 'Modifier la prévision' : 'Ajouter une prévision' }}</h2>
+    <div class="form-field">
+      <label>Période début</label>
+      <input type="date" [(ngModel)]="current.periodeDebut" />
+    </div>
+    <div class="form-field">
+      <label>Période fin</label>
+      <input type="date" [(ngModel)]="current.periodeFin" />
+    </div>
+    <div class="form-field">
+      <label>Quantité prévue</label>
+      <input type="number" [(ngModel)]="current.quantitePrevue" />
+    </div>
+    <div class="form-field">
+      <label>Méthode de prévision</label>
+      <input type="text" [(ngModel)]="current.methodePrevision" />
+    </div>
+    <div class="form-field">
+      <label>Niveau de confiance</label>

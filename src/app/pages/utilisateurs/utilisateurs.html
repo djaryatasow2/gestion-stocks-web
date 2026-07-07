@@ -1,38 +1,48 @@
 <div class="utilisateurs-page">
   <div class="page-header">
     <div>
-      <span class="kicker">Accès</span>
+      <span class="kicker">Administration</span>
       <h1>Utilisateurs</h1>
       <p class="subtitle">{{ utilisateurs.length }} utilisateur(s)</p>
     </div>
-    <button class="btn-primary" (click)="openAddModal()">+ Ajouter un utilisateur</button>
+    <button class="btn-primary" (click)="openAdd()">+ Ajouter</button>
   </div>
 
-  <div class="table-container">
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Chargement...</p>
+
+  <div class="table-container" *ngIf="!isLoading">
     <table>
       <thead>
         <tr>
           <th>Nom</th>
+          <th>Prénom</th>
+          <th>Username</th>
           <th>Email</th>
           <th>Rôle</th>
-          <th>Entreprise</th>
           <th>Statut</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let u of utilisateurs">
-          <td class="nom">{{ u.nom }}</td>
-          <td class="email">{{ u.email }}</td>
-          <td><span class="role-badge">{{ u.role }}</span></td>
-          <td>{{ u.entreprise }}</td>
+          <td>{{ u.nom }}</td>
+          <td>{{ u.prenom }}</td>
+          <td>{{ u.username }}</td>
+          <td>{{ u.email }}</td>
+          <td><span class="role-badge">{{ getRoleLabel(u.role) }}</span></td>
           <td>
-            <span class="badge" [class.inactive]="!u.actif">{{ u.actif ? 'Actif' : 'Inactif' }}</span>
+            <span class="badge" [class.inactive]="!u.active">
+              {{ u.active ? 'Actif' : 'Inactif' }}
+            </span>
           </td>
           <td class="actions">
-            <button class="btn-icon" (click)="openEditModal(u)">Modifier</button>
+            <button class="btn-icon" (click)="openEdit(u)">Modifier</button>
             <button class="btn-icon delete" (click)="confirmDelete(u)">Supprimer</button>
           </td>
+        </tr>
+        <tr *ngIf="utilisateurs.length === 0">
+          <td colspan="7" class="empty">Aucun utilisateur enregistré</td>
         </tr>
       </tbody>
     </table>
@@ -43,35 +53,45 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <span class="kicker">{{ isEditMode ? 'Modification' : 'Nouvel utilisateur' }}</span>
     <h2>{{ isEditMode ? "Modifier l'utilisateur" : 'Ajouter un utilisateur' }}</h2>
-
     <div class="form-field">
-      <label>Nom complet</label>
-      <input type="text" [(ngModel)]="currentUtilisateur.nom" />
+      <label>Nom</label>
+      <input type="text" [(ngModel)]="current.nom" />
+    </div>
+    <div class="form-field">
+      <label>Prénom</label>
+      <input type="text" [(ngModel)]="current.prenom" />
+    </div>
+    <div class="form-field">
+      <label>Nom d'utilisateur</label>
+      <input type="text" [(ngModel)]="current.username" />
     </div>
     <div class="form-field">
       <label>Email</label>
-      <input type="email" [(ngModel)]="currentUtilisateur.email" />
+      <input type="email" [(ngModel)]="current.email" />
+    </div>
+    <div class="form-field" *ngIf="!isEditMode">
+      <label>Mot de passe</label>
+      <input type="password" [(ngModel)]="current.password" />
     </div>
     <div class="form-field">
       <label>Rôle</label>
-      <select [(ngModel)]="currentUtilisateur.role">
-        <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+      <select [(ngModel)]="current.role">
+        <option *ngFor="let r of roles" [value]="r">{{ getRoleLabel(r) }}</option>
       </select>
     </div>
     <div class="form-field">
-      <label>Entreprise</label>
-      <input type="text" [(ngModel)]="currentUtilisateur.entreprise" />
+      <label>ID Entreprise</label>
+      <input type="number" [(ngModel)]="current.entrepriseId" />
     </div>
     <div class="form-field checkbox-field">
       <label class="checkbox-label">
-        <input type="checkbox" [(ngModel)]="currentUtilisateur.actif" />
+        <input type="checkbox" [(ngModel)]="current.active" />
         <span>Compte actif</span>
       </label>
     </div>
-
     <div class="modal-actions">
       <button class="btn-secondary" (click)="closeModal()">Annuler</button>
-      <button class="btn-primary" (click)="saveUtilisateur()">Enregistrer</button>
+      <button class="btn-primary" (click)="save()">Enregistrer</button>
     </div>
   </div>
 </div>
@@ -80,10 +100,10 @@
   <div class="modal small" (click)="$event.stopPropagation()">
     <span class="kicker">Confirmation</span>
     <h2>Supprimer cet utilisateur ?</h2>
-    <p class="confirm-text">"{{ utilisateurToDelete?.nom }}" sera définitivement supprimé.</p>
+    <p>"{{ toDelete?.nom }} {{ toDelete?.prenom }}" sera définitivement supprimé.</p>
     <div class="modal-actions">
       <button class="btn-secondary" (click)="cancelDelete()">Annuler</button>
-      <button class="btn-danger" (click)="deleteUtilisateur()">Supprimer</button>
+      <button class="btn-danger" (click)="delete()">Supprimer</button>
     </div>
   </div>
 </div>

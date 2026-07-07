@@ -1,23 +1,34 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface Mouvement {
-  id: number;
-  date: string;
-  article: string;
-  type: string;
-  quantite: number;
-  entrepot?: string;
-  entrepotSource?: string;
-  entrepotDestination?: string;
-  utilisateur: string;
+export interface MouvementStockDto {
+  id?: number;
+  typeMouvement?: string;
+  quantite?: number;
+  reference?: string;
+  dateMouvement?: string;
+  motif?: string;
+  coutUnitaire?: number;
+  prixVente?: number;
+  stockId?: number;
+  userId?: number;
 }
 
 @Injectable({ providedIn: 'root' })
-export class MouvementService {
-  private url = '/api/mouvements';
-  constructor(private http: HttpClient) {}
-  getAll(): Observable<Mouvement[]> { return this.http.get<Mouvement[]>(this.url); }
-  create(m: any): Observable<Mouvement> { return this.http.post<Mouvement>(this.url, m); }
+export class MouvementsService {
+  private http = inject(HttpClient);
+  private apiUrl = '/api/mouvements';
+
+  getAll(): Observable<MouvementStockDto[]> {
+    return this.http.get<MouvementStockDto[]>(this.apiUrl);
+  }
+
+  create(mouvement: MouvementStockDto): Observable<MouvementStockDto> {
+    return this.http.post<MouvementStockDto>(this.apiUrl, mouvement);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }

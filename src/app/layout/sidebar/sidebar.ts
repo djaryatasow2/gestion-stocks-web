@@ -1,7 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+
+interface MenuItem {
+  label: string;
+  route: string;
+  roles: string[];
+}
 
 @Component({
   selector: 'app-sidebar',
@@ -10,24 +16,29 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './sidebar.html',
   styleUrls: ['./sidebar.scss'],
 })
-export class Sidebar {
+export class Sidebar implements OnInit {
+  menuItems: MenuItem[] = [];
+
   constructor(public authService: AuthService) {}
 
-  get menuItems() {
+  ngOnInit(): void {
     const role = this.authService.getRole();
-    const tous = [
+    const tous: MenuItem[] = [
       { label: 'Tableau de bord', route: '/dashboard', roles: [] },
-      { label: 'Mouvements', route: '/mouvements', roles: ['ADMIN', 'GESTIONNAIRE'] },
-      { label: 'Articles', route: '/articles', roles: ['ADMIN', 'GESTIONNAIRE'] },
-      { label: 'Catégories', route: '/categories', roles: ['ADMIN', 'GESTIONNAIRE'] },
-      { label: 'Entrepôts', route: '/entrepots', roles: ['ADMIN', 'GESTIONNAIRE', 'RESPONSABLE'] },
+      { label: 'Alertes', route: '/alertes', roles: [] },
+      { label: 'Historique', route: '/historique', roles: [] },
+      { label: 'Entrepôts', route: '/entrepots', roles: [] },
+      { label: 'Notifications', route: '/notifications', roles: [] },
+      { label: 'Stocks', route: '/stocks', roles: ['ADMIN', 'GESTIONNAIRE_STOCK'] },
+      { label: 'Articles', route: '/articles', roles: ['ADMIN', 'GESTIONNAIRE_STOCK'] },
+      { label: 'Catégories', route: '/categories', roles: ['ADMIN', 'GESTIONNAIRE_STOCK'] },
+      { label: 'Mouvements', route: '/mouvements', roles: ['ADMIN', 'GESTIONNAIRE_STOCK'] },
+      { label: 'Prévisions', route: '/previsions', roles: ['ADMIN', 'GESTIONNAIRE_STOCK'] },
+      { label: 'Rapports', route: '/rapports', roles: ['ADMIN', 'GESTIONNAIRE_STOCK'] },
+      { label: 'Inventaires', route: '/inventaires', roles: ['ADMIN', 'GESTIONNAIRE_STOCK', 'MOBILE'] },
       { label: 'Entreprises', route: '/entreprises', roles: ['ADMIN'] },
       { label: 'Utilisateurs', route: '/utilisateurs', roles: ['ADMIN'] },
-      { label: 'Historique', route: '/historique', roles: [] },
-      { label: 'Alertes', route: '/alertes', roles: [] },
-      { label: 'Prévisions', route: '/previsions', roles: ['ADMIN', 'GESTIONNAIRE'] },
-      { label: 'Rapports', route: '/rapports', roles: ['ADMIN', 'GESTIONNAIRE'] },
     ];
-    return tous.filter(item => item.roles.length === 0 || item.roles.includes(role));
+    this.menuItems = tous.filter(item => item.roles.length === 0 || item.roles.includes(role));
   }
 }

@@ -1,0 +1,52 @@
+<div class="notifications-page">
+  <div class="page-header">
+    <span class="kicker">Alertes</span>
+    <h1>Notifications</h1>
+    <p class="subtitle">{{ nonLues.length }} non lue(s)</p>
+  </div>
+
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Chargement...</p>
+
+  <div class="section" *ngIf="nonLues.length > 0">
+    <h2>Non lues</h2>
+    <div class="notifications-list">
+      <div class="notification-card unread" *ngFor="let n of nonLues">
+        <div class="notification-left">
+          <div class="notification-icon">🔔</div>
+          <div class="notification-info">
+            <span class="notification-type">{{ n.type }}</span>
+            <span class="notification-message">{{ n.message }}</span>
+            <span class="notification-date">{{ n.dateEnvoi | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+        <div class="notification-right">
+          <button class="btn-icon" (click)="marquerLue(n)">Marquer lue</button>
+          <button class="btn-icon delete" (click)="delete(n)">Supprimer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="nonLues.length === 0 && !isLoading">
+    <span class="empty-icon">✅</span>
+    <p>Aucune notification non lue.</p>
+  </div>
+
+  <div class="section" *ngIf="lues.length > 0">
+    <h2>Lues</h2>
+    <div class="notifications-list">
+      <div class="notification-card read" *ngFor="let n of lues">
+        <div class="notification-left">
+          <div class="notification-icon read">✓</div>
+          <div class="notification-info">
+            <span class="notification-type">{{ n.type }}</span>
+            <span class="notification-message">{{ n.message }}</span>
+            <span class="notification-date">{{ n.dateEnvoi | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+        </div>
+        <button class="btn-icon delete" (click)="delete(n)">Supprimer</button>
+      </div>
+    </div>
+  </div>
+</div>

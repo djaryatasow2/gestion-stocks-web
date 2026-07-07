@@ -4,41 +4,40 @@
     <h1>Tableau de bord</h1>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-card" *ngFor="let stat of stats">
-      <span class="stat-value">{{ stat.value }}</span>
-      <span class="stat-label">{{ stat.label }}</span>
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Chargement...</p>
+
+  <div class="stats-grid" *ngIf="!isLoading">
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.totalArticles }}</span>
+      <span class="stat-label">Total articles</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.totalEntrepots }}</span>
+      <span class="stat-label">Entrepôts actifs</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.totalStocksCritiques }}</span>
+      <span class="stat-label">Stocks critiques</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.totalAlertesNonTraitees }}</span>
+      <span class="stat-label">Alertes non traitées</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.totalMouvementsAujourdhui }}</span>
+      <span class="stat-label">Mouvements aujourd'hui</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value">{{ stats.valeurTotaleStock | number:'1.2-2' }}</span>
+      <span class="stat-label">Valeur totale stock</span>
     </div>
   </div>
 
-  <div class="charts-grid">
-    <div class="panel">
-      <h2>Répartition par entrepôt</h2>
-      <div class="chart-wrapper">
-        <canvas #camembertChart></canvas>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Mouvements mensuels</h2>
-      <div class="chart-wrapper">
-        <canvas #barChart></canvas>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel alertes-panel">
-    <h2>Alertes de seuil minimum</h2>
-    <div class="alert-list">
-      <div class="alert-item" *ngFor="let alerte of alertes">
-        <div class="alert-info">
-          <span class="alert-article">{{ alerte.article }}</span>
-          <span class="alert-entrepot">{{ alerte.entrepot }}</span>
-        </div>
-        <span class="alert-badge" [class.rupture]="alerte.niveau === 0">
-          {{ alerte.niveau }} / {{ alerte.seuil }}
-        </span>
-      </div>
+  <div class="panel" *ngIf="!isLoading">
+    <h2>Vue d'ensemble</h2>
+    <div class="chart-wrapper">
+      <canvas #barChart></canvas>
     </div>
   </div>
 </div>

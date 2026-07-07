@@ -1,72 +1,51 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-
-interface Mouvement {
-  id: number;
-  type: string;
-  article: string;
-  entrepot?: string;
-  entrepotSource?: string;
-  entrepotDestination?: string;
-  quantite: number;
-  date: string;
-  utilisateur: string;
-}
+import { MouvementsService, MouvementStockDto } from '../../services/mouvements.service';
 
 @Component({
   selector: 'app-mouvements',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './mouvements.html',
-  styleUrl: './mouvements.css',
+styleUrl: './mouvements.scss',
 })
 export class Mouvements implements OnInit {
-  mouvements: Mouvement[] = [];
-  articles = ['Ordinateur HP', 'Souris sans fil', 'Chaise de bureau', 'Imprimante Laser'];
-  entrepots = ['Entrepôt A', 'Entrepôt B', 'Entrepôt C'];
+  mouvements: MouvementStockDto[] = [];
   showModal = false;
   isLoading = false;
-  currentMouvement = this.empty();
+  errorMessage = '';
+  current: MouvementStockDto = this.empty();
+  typesMouvement = ['ENTREE', 'SORTIE', 'TRANSFERT'];
 
-  constructor(private http: HttpClient) {}
+  constructor(private service: MouvementsService) {}
 
-  ngOnInit(): void {
-    this.charger();
-  }
+  ngOnInit(): void { this.charger(); }
 
   charger(): void {
     this.isLoading = true;
-    this.http.get<Mouvement[]>('/api/mouvements').subscribe({
-      next: (data) => { this.mouvements = data; this.isLoading = false; },
-      error: () => {
-        this.isLoading = false;
-        this.mouvements = [
-          { id: 1, type: 'ENTREE', article: 'Ordinateur HP', entrepot: 'Entrepôt A', entrepotSource: '', entrepotDestination: 'Entrepôt A', quantite: 10, date: '2026-06-25', utilisateur: 'Djaryata' },
-          { id: 2, type: 'SORTIE', article: 'Souris sans fil', entrepot: 'Entrepôt A', entrepotSource: 'Entrepôt A', entrepotDestination: '', quantite: 3, date: '2026-06-24', utilisateur: 'Ahmed' },
-          { id: 3, type: 'TRANSFERT', article: 'Chaise de bureau', entrepot: 'Entrepôt A', entrepotSource: 'Entrepôt A', entrepotDestination: 'Entrepôt B', quantite: 5, date: '2026-06-23', utilisateur: 'Fatima' },
-        ];
-      }
+    this.errorMessage = '';
+    this.service.getAll().subscribe({
+      next: (data: MouvementStockDto[]) => { this.mouvements = data; this.isLoading = false; },
+      error: () => { this.isLoading = false; this.errorMessage = 'Impossible de charger les mouvements.'; }
     });
   }
 
-  empty() {
+  empty(): MouvementStockDto {
     return {
-      id: 0,
-      type: 'ENTREE' as string,
-      article: '',
-      entrepot: '',
-      entrepotSource: '',
-      entrepotDestination: '',
+      typeMouvement: 'ENTREE',
       quantite: 0,
-      date: new Date().toISOString().split('T')[0],
-      utilisateur: localStorage.getItem('nom') || ''
+      reference: '',
+      motif: '',
+      coutUnitaire: 0,
+      prixVente: 0,
+      stockId: 0,
+      userId: 0
     };
   }
 
-  openModal() { this.currentMouvement = this.empty(); this.showModal = true; }
-  closeModal() { this.showModal = false; }
+  openModal(): void { this.current = this.empty(); this.showModal = true; }
+  closeModal(): void { this.showModal = false; }
 
   getTypeLabel(type: string): string {
     if (type === 'ENTREE') return 'Entrée';
@@ -74,15 +53,21 @@ export class Mouvements implements OnInit {
     return 'Transfert';
   }
 
-  saveMouvement() {
-    if (!this.currentMouvement.article || !this.currentMouvement.quantite) return;
-    this.http.post<Mouvement>('/api/mouvements', this.currentMouvement).subscribe({
+  save(): void {
+    if (!this.current.stockId || !this.current.quantite) {
+      this.errorMessage = 'Veuillez remplir tous les champs obligatoires.';
+      return;
+    }
+    this.service.create(this.current).subscribe({
       next: () => { this.charger(); this.closeModal(); },
-      error: () => {
-        const newId = Math.max(0, ...this.mouvements.map(m => m.id)) + 1;
-        this.mouvements.unshift({ ...this.currentMouvement, id: newId });
-        this.closeModal();
-      }
+      error: () => { this.errorMessage = 'Erreur lors de la création du mouvement.'; }
+    });
+  }
+
+  delete(id: number): void {
+    this.service.delete(id).subscribe({
+      next: () => this.charger(),
+      error: () => { this.errorMessage = 'Erreur lors de la suppression.'; }
     });
   }
 }

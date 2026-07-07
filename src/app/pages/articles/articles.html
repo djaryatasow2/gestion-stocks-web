@@ -2,35 +2,55 @@
   <div class="page-header">
     <div>
       <span class="kicker">Inventaire</span>
-      <h1>Gestion des articles</h1>
+      <h1>Articles</h1>
+      <p class="subtitle">{{ articles.length }} article(s)</p>
     </div>
-    <button class="btn-primary" (click)="openAddModal()">+ Ajouter</button>
+    <button class="btn-primary" (click)="openAdd()">+ Ajouter</button>
   </div>
-  <div class="table-container">
+
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Chargement...</p>
+
+  <div class="search-bar" *ngIf="!isLoading">
+    <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher par nom, code, code barre..." />
+  </div>
+
+  <div class="table-container" *ngIf="!isLoading">
     <table>
       <thead>
         <tr>
+          <th>Code</th>
           <th>Nom</th>
-          <th>Categorie</th>
-          <th>Quantite</th>
-          <th>Statut</th>
+          <th>Description</th>
+          <th>Unité</th>
+          <th>Poids</th>
+          <th>Volume</th>
+          <th>Code barre</th>
+          <th>QR Code</th>
+          <th>ID Catégorie</th>
+          <th>ID Entreprise</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let a of filteredArticles">
+        <tr *ngFor="let a of filtered">
+          <td>{{ a.code }}</td>
           <td>{{ a.nom }}</td>
-          <td>{{ a.categorie }}</td>
-          <td>{{ a.quantite }}</td>
-          <td>
-            <span class="badge" [ngClass]="getStatut(a)">
-              {{ getStatutLabel(a) }}
-            </span>
+          <td>{{ a.description }}</td>
+          <td>{{ a.uniteMesure }}</td>
+          <td>{{ a.poids }}</td>
+          <td>{{ a.volume }}</td>
+          <td>{{ a.codeBarre }}</td>
+          <td>{{ a.qrCode }}</td>
+          <td>{{ a.categorieId }}</td>
+          <td>{{ a.entrepriseId }}</td>
+          <td class="actions">
+            <button class="btn-icon" (click)="openEdit(a)">Modifier</button>
+            <button class="btn-icon delete" (click)="confirmDelete(a)">Supprimer</button>
           </td>
-          <td>
-            <button (click)="openEditModal(a)">Modifier</button>
-            <button (click)="confirmDelete(a)">Supprimer</button>
-          </td>
+        </tr>
+        <tr *ngIf="filtered.length === 0">
+          <td colspan="11" class="empty">Aucun article trouvé</td>
         </tr>
       </tbody>
     </table>
@@ -39,36 +59,63 @@
 
 <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
   <div class="modal" (click)="$event.stopPropagation()">
-    <h2>Article</h2>
+    <span class="kicker">{{ isEditMode ? 'Modification' : 'Nouvel article' }}</span>
+    <h2>{{ isEditMode ? "Modifier l'article" : 'Ajouter un article' }}</h2>
+    <div class="form-field">
+      <label>Code</label>
+      <input type="text" [(ngModel)]="current.code" />
+    </div>
     <div class="form-field">
       <label>Nom</label>
-      <input type="text" [(ngModel)]="currentArticle.nom" />
+      <input type="text" [(ngModel)]="current.nom" />
     </div>
     <div class="form-field">
-      <label>Categorie</label>
-      <input type="text" [(ngModel)]="currentArticle.categorie" />
+      <label>Description</label>
+      <input type="text" [(ngModel)]="current.description" />
     </div>
     <div class="form-field">
-      <label>Quantite</label>
-      <input type="number" [(ngModel)]="currentArticle.quantite" />
+      <label>Unité de mesure</label>
+      <input type="text" [(ngModel)]="current.uniteMesure" />
     </div>
     <div class="form-field">
-      <label>Seuil minimum</label>
-      <input type="number" [(ngModel)]="currentArticle.seuilMinimum" />
+      <label>Poids</label>
+      <input type="number" [(ngModel)]="current.poids" />
+    </div>
+    <div class="form-field">
+      <label>Volume</label>
+      <input type="number" [(ngModel)]="current.volume" />
+    </div>
+    <div class="form-field">
+      <label>Code barre</label>
+      <input type="text" [(ngModel)]="current.codeBarre" />
+    </div>
+    <div class="form-field">
+      <label>QR Code</label>
+      <input type="text" [(ngModel)]="current.qrCode" />
+    </div>
+    <div class="form-field">
+      <label>ID Catégorie</label>
+      <input type="number" [(ngModel)]="current.categorieId" />
+    </div>
+    <div class="form-field">
+      <label>ID Entreprise</label>
+      <input type="number" [(ngModel)]="current.entrepriseId" />
     </div>
     <div class="modal-actions">
-      <button (click)="closeModal()">Annuler</button>
-      <button (click)="saveArticle()">Enregistrer</button>
+      <button class="btn-secondary" (click)="closeModal()">Annuler</button>
+      <button class="btn-primary" (click)="save()">Enregistrer</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
   <div class="modal small" (click)="$event.stopPropagation()">
-    <h2>Supprimer ?</h2>
+    <span class="kicker">Confirmation</span>
+    <h2>Supprimer cet article ?</h2>
+    <p>"{{ toDelete?.nom }}" sera définitivement supprimé.</p>
     <div class="modal-actions">
-      <button (click)="cancelDelete()">Annuler</button>
-      <button (click)="deleteArticle()">Supprimer</button>
+      <button class="btn-secondary" (click)="cancelDelete()">Annuler</button>
+      <button class="btn-danger" (click)="delete()">Supprimer</button>
     </div>
   </div>
 </div>

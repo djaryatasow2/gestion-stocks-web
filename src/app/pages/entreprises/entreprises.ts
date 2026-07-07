@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { EntrepriseService, Entreprise } from '../../services/entreprise.service';
+import { EntrepriseService, EntrepriseDto } from '../../services/entreprise.service';
 
 @Component({
   selector: 'app-entreprises',
@@ -11,15 +11,18 @@ import { EntrepriseService, Entreprise } from '../../services/entreprise.service
   styleUrl: './entreprises.scss',
 })
 export class Entreprises implements OnInit {
-  entreprises: Entreprise[] = [];
+  entreprises: EntrepriseDto[] = [];
   showModal = false;
   isEditMode = false;
-  currentEntreprise: Entreprise = this.empty();
-  entrepriseToDelete: Entreprise | null = null;
+  current: EntrepriseDto = this.empty();
+  toDelete: EntrepriseDto | null = null;
   showDeleteConfirm = false;
   isLoading = false;
+  isSaving = false;
+  isDeleting = false;
+  errorMessage = '';
 
-  constructor(private entrepriseService: EntrepriseService) {}
+  constructor(private service: EntrepriseService) {}
 
   ngOnInit(): void {
     this.charger();
@@ -27,61 +30,106 @@ export class Entreprises implements OnInit {
 
   charger(): void {
     this.isLoading = true;
-    this.entrepriseService.getAll().subscribe({
-      next: (data) => { this.entreprises = data; this.isLoading = false; },
+    this.errorMessage = '';
+    this.service.getAll().subscribe({
+      next: (data) => {
+        this.entreprises = data;
+        this.isLoading = false;
+      },
       error: () => {
         this.isLoading = false;
-        this.entreprises = [
-          { id: 1, nom: 'SMART MS SA', secteur: 'Technologie', contact: 'contact@smartms.mr', nombreUtilisateurs: 12, active: true },
-          { id: 2, nom: 'Sahel Distribution', secteur: 'Logistique', contact: 'info@saheldist.mr', nombreUtilisateurs: 8, active: true },
-          { id: 3, nom: 'Atlantique Trading', secteur: 'Import-Export', contact: 'contact@atlantique.mr', nombreUtilisateurs: 5, active: false },
-        ];
-      }
+        this.errorMessage = 'Impossible de charger les entreprises.';
+      },
     });
   }
 
-  empty(): Entreprise {
-    return { id: 0, nom: '', secteur: '', contact: '', nombreUtilisateurs: 0, active: true };
+  empty(): EntrepriseDto {
+    return { nom: '', adresse: '', telephone: '', email: '', siret: '' };
   }
 
-  openAddModal() { this.isEditMode = false; this.currentEntreprise = this.empty(); this.showModal = true; }
-  openEditModal(e: Entreprise) { this.isEditMode = true; this.currentEntreprise = { ...e }; this.showModal = true; }
-  closeModal() { this.showModal = false; }
+  openAdd(): void {
+    this.isEditMode = false;
+    this.current = this.empty();
+    this.errorMessage = '';
+    this.showModal = true;
+  }
 
-  saveEntreprise() {
-    if (this.isEditMode) {
-      this.entrepriseService.update(this.currentEntreprise.id, this.currentEntreprise).subscribe({
-        next: () => { this.charger(); this.closeModal(); },
-        error: () => {
-          const i = this.entreprises.findIndex(e => e.id === this.currentEntreprise.id);
-          if (i !== -1) this.entreprises[i] = { ...this.currentEntreprise };
+  openEdit(e: EntrepriseDto): void {
+    this.isEditMode = true;
+    this.current = { ...e };
+    this.errorMessage = '';
+    this.showModal = true;
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+  }
+
+  save(): void {
+    if (!this.current.nom?.trim()) {
+      this.errorMessage = 'Le nom de l’entreprise est requis.';
+      return;
+    }
+
+    this.isSaving = true;
+    this.errorMessage = '';
+
+    if (this.isEditMode && this.current.id) {
+      this.service.update(this.current.id, this.current).subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.charger();
           this.closeModal();
-        }
+        },
+        error: () => {
+          this.isSaving = false;
+          this.errorMessage = 'Erreur lors de la modification.';
+        },
       });
     } else {
-      this.entrepriseService.create(this.currentEntreprise).subscribe({
-        next: () => { this.charger(); this.closeModal(); },
-        error: () => {
-          const newId = Math.max(0, ...this.entreprises.map(e => e.id)) + 1;
-          this.entreprises.push({ ...this.currentEntreprise, id: newId, nombreUtilisateurs: 0 });
+      this.service.create(this.current).subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.charger();
           this.closeModal();
-        }
+        },
+        error: () => {
+          this.isSaving = false;
+          this.errorMessage = 'Erreur lors de la création.';
+        },
       });
     }
   }
 
-  confirmDelete(e: Entreprise) { this.entrepriseToDelete = e; this.showDeleteConfirm = true; }
-  cancelDelete() { this.entrepriseToDelete = null; this.showDeleteConfirm = false; }
+  confirmDelete(e: EntrepriseDto): void {
+    this.toDelete = e;
+    this.showDeleteConfirm = true;
+  }
 
-  deleteEntreprise() {
-    if (this.entrepriseToDelete) {
-      this.entrepriseService.delete(this.entrepriseToDelete.id).subscribe({
-        next: () => this.charger(),
-        error: () => {
-          this.entreprises = this.entreprises.filter(e => e.id !== this.entrepriseToDelete!.id);
-        }
-      });
+  cancelDelete(): void {
+    this.toDelete = null;
+    this.showDeleteConfirm = false;
+  }
+
+  delete(): void {
+    if (!this.toDelete?.id) {
+      return;
     }
-    this.cancelDelete();
+
+    this.isDeleting = true;
+    this.errorMessage = '';
+
+    this.service.delete(this.toDelete.id).subscribe({
+      next: () => {
+        this.isDeleting = false;
+        this.charger();
+        this.cancelDelete();
+      },
+      error: () => {
+        this.isDeleting = false;
+        this.errorMessage = 'Erreur lors de la suppression.';
+        this.cancelDelete();
+      },
+    });
   }
 }
