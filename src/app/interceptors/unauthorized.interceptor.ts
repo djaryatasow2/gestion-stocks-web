@@ -5,16 +5,14 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 export const unauthorizedInterceptor: HttpInterceptorFn = (req, next) => {
-  const router = inject(Router); // ✅ appelé de façon synchrone, dans le bon contexte
-
+  const router = inject(Router);
   return next(req).pipe(
     catchError((err: any) => {
       if (err && err.status === 401) {
-        console.error('[401 interceptor] endpoint:', req.url, 'status:', err.status);
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-          setTimeout(() => router.navigateByUrl('/login', { replaceUrl: true }));
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/login') {
+          localStorage.clear();
+          setTimeout(() => router.navigateByUrl('/login', { replaceUrl: true }), 100);
         }
       }
       return throwError(() => err);

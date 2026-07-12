@@ -30,7 +30,7 @@ export interface InventaireSession {
 
 @Injectable({ providedIn: 'root' })
 export class InventaireService {
-  private http = inject(HttpClient);
+constructor(private http: HttpClient) {}
   private apiUrl = '/api/inventaires';
 
   getAll(): Observable<Inventaire[]> {

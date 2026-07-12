@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { EntrepriseService, EntrepriseDto } from '../../services/entreprise.service';
@@ -22,7 +22,10 @@ export class Entreprises implements OnInit {
   isDeleting = false;
   errorMessage = '';
 
-  constructor(private service: EntrepriseService) {}
+  constructor(
+    private service: EntrepriseService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.charger();
@@ -35,10 +38,14 @@ export class Entreprises implements OnInit {
       next: (data) => {
         this.entreprises = data;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
         this.isLoading = false;
-        this.errorMessage = 'Impossible de charger les entreprises.';
+        this.errorMessage = err.status === 401
+          ? 'Session expirée. Veuillez vous reconnecter.'
+          : 'Impossible de charger les entreprises.';
+        this.cdr.detectChanges();
       },
     });
   }
@@ -67,10 +74,9 @@ export class Entreprises implements OnInit {
 
   save(): void {
     if (!this.current.nom?.trim()) {
-      this.errorMessage = 'Le nom de l’entreprise est requis.';
+      this.errorMessage = 'Le nom de l\'entreprise est requis.';
       return;
     }
-
     this.isSaving = true;
     this.errorMessage = '';
 
@@ -80,10 +86,12 @@ export class Entreprises implements OnInit {
           this.isSaving = false;
           this.charger();
           this.closeModal();
+          this.cdr.detectChanges();
         },
         error: () => {
           this.isSaving = false;
           this.errorMessage = 'Erreur lors de la modification.';
+          this.cdr.detectChanges();
         },
       });
     } else {
@@ -92,10 +100,12 @@ export class Entreprises implements OnInit {
           this.isSaving = false;
           this.charger();
           this.closeModal();
+          this.cdr.detectChanges();
         },
         error: () => {
           this.isSaving = false;
           this.errorMessage = 'Erreur lors de la création.';
+          this.cdr.detectChanges();
         },
       });
     }
@@ -115,20 +125,20 @@ export class Entreprises implements OnInit {
     if (!this.toDelete?.id) {
       return;
     }
-
     this.isDeleting = true;
     this.errorMessage = '';
-
     this.service.delete(this.toDelete.id).subscribe({
       next: () => {
         this.isDeleting = false;
         this.charger();
         this.cancelDelete();
+        this.cdr.detectChanges();
       },
       error: () => {
         this.isDeleting = false;
         this.errorMessage = 'Erreur lors de la suppression.';
         this.cancelDelete();
+        this.cdr.detectChanges();
       },
     });
   }

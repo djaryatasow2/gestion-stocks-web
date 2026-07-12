@@ -10,12 +10,12 @@ export interface DashboardDto {
   totalMouvementsAujourdhui: number;
   valeurTotaleStock: number;
 }
-
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-  private http = inject(HttpClient);
+  constructor(private http: HttpClient) {}
+  
   private apiUrl = '/api/dashboard';
-
+  
   getStats(): Observable<DashboardDto> {
     return this.http.get<DashboardDto>(this.apiUrl);
   }

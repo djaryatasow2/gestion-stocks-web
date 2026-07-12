@@ -14,7 +14,8 @@ export interface EntrepotDto {
 
 @Injectable({ providedIn: 'root' })
 export class EntrepotService {
-  private http = inject(HttpClient);
+  
+constructor(private http: HttpClient) {}
   private apiUrl = '/api/entrepots';
 
   getAll(): Observable<EntrepotDto[]> {

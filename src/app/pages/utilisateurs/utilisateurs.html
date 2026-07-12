@@ -1,4 +1,4 @@
-<div class="utilisateurs-page">
+<div class="entreprises-page">
   <div class="page-header">
     <div>
       <span class="kicker">Administration</span>
@@ -15,34 +15,32 @@
     <table>
       <thead>
         <tr>
+          <th>Username</th>
           <th>Nom</th>
           <th>Prénom</th>
-          <th>Username</th>
           <th>Email</th>
           <th>Rôle</th>
-          <th>Statut</th>
+          <th>Entreprise</th>
+          <th>Actif</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let u of utilisateurs">
-          <td>{{ u.nom }}</td>
-          <td>{{ u.prenom }}</td>
           <td>{{ u.username }}</td>
+          <td>{{ u.nom || '—' }}</td>
+          <td>{{ u.prenom || '—' }}</td>
           <td>{{ u.email }}</td>
-          <td><span class="role-badge">{{ getRoleLabel(u.role) }}</span></td>
-          <td>
-            <span class="badge" [class.inactive]="!u.active">
-              {{ u.active ? 'Actif' : 'Inactif' }}
-            </span>
-          </td>
+          <td>{{ u.role }}</td>
+          <td>{{ nomEntreprise(u.entrepriseId) }}</td>
+          <td>{{ u.active ? 'Oui' : 'Non' }}</td>
           <td class="actions">
             <button class="btn-icon" (click)="openEdit(u)">Modifier</button>
             <button class="btn-icon delete" (click)="confirmDelete(u)">Supprimer</button>
           </td>
         </tr>
         <tr *ngIf="utilisateurs.length === 0">
-          <td colspan="7" class="empty">Aucun utilisateur enregistré</td>
+          <td colspan="8" class="empty">Aucun utilisateur enregistré</td>
         </tr>
       </tbody>
     </table>
@@ -53,45 +51,54 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <span class="kicker">{{ isEditMode ? 'Modification' : 'Nouvel utilisateur' }}</span>
     <h2>{{ isEditMode ? "Modifier l'utilisateur" : 'Ajouter un utilisateur' }}</h2>
+
+    <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <div class="form-field">
+      <label>Username *</label>
+      <input type="text" [(ngModel)]="current.username" name="username" />
+    </div>
+    <div class="form-field">
+      <label>Mot de passe {{ isEditMode ? '(laisser vide pour ne pas changer)' : '*' }}</label>
+      <input type="password" [(ngModel)]="current.password" name="password" />
+    </div>
     <div class="form-field">
       <label>Nom</label>
-      <input type="text" [(ngModel)]="current.nom" />
+      <input type="text" [(ngModel)]="current.nom" name="nom" />
     </div>
     <div class="form-field">
       <label>Prénom</label>
-      <input type="text" [(ngModel)]="current.prenom" />
+      <input type="text" [(ngModel)]="current.prenom" name="prenom" />
     </div>
     <div class="form-field">
-      <label>Nom d'utilisateur</label>
-      <input type="text" [(ngModel)]="current.username" />
-    </div>
-    <div class="form-field">
-      <label>Email</label>
-      <input type="email" [(ngModel)]="current.email" />
-    </div>
-    <div class="form-field" *ngIf="!isEditMode">
-      <label>Mot de passe</label>
-      <input type="password" [(ngModel)]="current.password" />
+      <label>Email *</label>
+      <input type="email" [(ngModel)]="current.email" name="email" />
     </div>
     <div class="form-field">
       <label>Rôle</label>
-      <select [(ngModel)]="current.role">
-        <option *ngFor="let r of roles" [value]="r">{{ getRoleLabel(r) }}</option>
+      <select [(ngModel)]="current.role" name="role">
+        <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
       </select>
     </div>
     <div class="form-field">
-      <label>ID Entreprise</label>
-      <input type="number" [(ngModel)]="current.entrepriseId" />
+      <label>Entreprise</label>
+      <select [(ngModel)]="current.entrepriseId" name="entrepriseId">
+        <option [ngValue]="undefined">Aucune</option>
+        <option *ngFor="let e of entreprises" [ngValue]="e.id">{{ e.nom }}</option>
+      </select>
     </div>
     <div class="form-field checkbox-field">
-      <label class="checkbox-label">
-        <input type="checkbox" [(ngModel)]="current.active" />
-        <span>Compte actif</span>
+      <label>
+        <input type="checkbox" [(ngModel)]="current.active" name="active" />
+        Actif
       </label>
     </div>
+
     <div class="modal-actions">
-      <button class="btn-secondary" (click)="closeModal()">Annuler</button>
-      <button class="btn-primary" (click)="save()">Enregistrer</button>
+      <button class="btn-secondary" (click)="closeModal()" [disabled]="isSaving">Annuler</button>
+      <button class="btn-primary" (click)="save()" [disabled]="isSaving">
+        {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
+      </button>
     </div>
   </div>
 </div>
@@ -100,10 +107,10 @@
   <div class="modal small" (click)="$event.stopPropagation()">
     <span class="kicker">Confirmation</span>
     <h2>Supprimer cet utilisateur ?</h2>
-    <p>"{{ toDelete?.nom }} {{ toDelete?.prenom }}" sera définitivement supprimé.</p>
+    <p>"{{ toDelete?.username }}" sera définitivement supprimé.</p>
     <div class="modal-actions">
-      <button class="btn-secondary" (click)="cancelDelete()">Annuler</button>
-      <button class="btn-danger" (click)="delete()">Supprimer</button>
+      <button class="btn-secondary" (click)="cancelDelete()" [disabled]="isDeleting">Annuler</button>
+      <button class="btn-danger" (click)="delete()" [disabled]="isDeleting">Supprimer</button>
     </div>
   </div>
 </div>

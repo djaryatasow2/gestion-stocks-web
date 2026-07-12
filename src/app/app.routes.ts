@@ -13,6 +13,9 @@ import { Rapports } from './pages/rapports/rapports';
 import { Profile } from './pages/profile/profile';
 import { Mouvements } from './pages/mouvements/mouvements';
 import { Inventaires } from './pages/inventaires/inventaires';
+import { Stocks } from './pages/stocks/stocks';
+import { Notifications } from './pages/notifications/notifications';
+import { Seuils } from './pages/seuils/seuils';
 import { NotFound } from './pages/not-found/not-found';
 import { authGuard, adminGuard, gestionnaireGuard } from './guards/auth.guard';
 
@@ -25,11 +28,14 @@ export const routes: Routes = [
   { path: 'entrepots', component: Entrepots, canActivate: [authGuard] },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
   { path: 'inventaires', component: Inventaires, canActivate: [authGuard] },
+  { path: 'notifications', component: Notifications, canActivate: [authGuard] },
+  { path: 'stocks', component: Stocks, canActivate: [gestionnaireGuard] },
   { path: 'articles', component: Articles, canActivate: [gestionnaireGuard] },
   { path: 'categories', component: Categories, canActivate: [gestionnaireGuard] },
   { path: 'mouvements', component: Mouvements, canActivate: [gestionnaireGuard] },
   { path: 'previsions', component: Previsions, canActivate: [gestionnaireGuard] },
   { path: 'rapports', component: Rapports, canActivate: [gestionnaireGuard] },
+  { path: 'seuils', component: Seuils, canActivate: [gestionnaireGuard] },
   { path: 'entreprises', component: Entreprises, canActivate: [adminGuard] },
   { path: 'utilisateurs', component: Utilisateurs, canActivate: [adminGuard] },
   { path: '**', component: NotFound }

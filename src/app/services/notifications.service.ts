@@ -14,7 +14,7 @@ export interface NotificationDto {
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private http = inject(HttpClient);
+  constructor(private http: HttpClient) {}
   private apiUrl = '/api/notifications';
 
   getByUser(userId: number): Observable<NotificationDto[]> {

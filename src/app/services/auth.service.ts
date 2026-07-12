@@ -17,7 +17,7 @@ export interface AuthResponseDto {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private http = inject(HttpClient);
+  constructor(private http: HttpClient) {}
   private router = inject(Router);
 
   login(credentials: AuthRequestDto) {

@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class RapportService {
-  private http = inject(HttpClient);
+  constructor(private http: HttpClient) {}
   private apiUrl = '/api/rapports';
 
   exportStocks(): Observable<Blob> {

@@ -14,7 +14,7 @@ export interface AlerteDto {
 
 @Injectable({ providedIn: 'root' })
 export class AlerteService {
-  private http = inject(HttpClient);
+  constructor(private http: HttpClient) {}
   private apiUrl = '/api/alertes';
 
   getAll(): Observable<AlerteDto[]> {

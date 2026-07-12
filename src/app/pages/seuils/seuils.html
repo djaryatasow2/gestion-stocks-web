@@ -1,0 +1,93 @@
+<div class="entreprises-page">
+  <div class="page-header">
+    <div>
+      <span class="kicker">Gestion</span>
+      <h1>Seuils d'alerte</h1>
+      <p class="subtitle">{{ seuils.length }} seuil(s) configuré(s)</p>
+    </div>
+    <button class="btn-primary" (click)="openAdd()">+ Ajouter</button>
+  </div>
+
+  <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p *ngIf="isLoading">Chargement...</p>
+
+  <div class="table-container" *ngIf="!isLoading">
+    <table>
+      <thead>
+        <tr>
+          <th>Article</th>
+          <th>Entrepôt</th>
+          <th>Seuil min</th>
+          <th>Seuil max</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let s of seuils">
+          <td>{{ nomArticle(s.articleId) }}</td>
+          <td>{{ nomEntrepot(s.entrepotId) }}</td>
+          <td>{{ s.seuilMinimum }}</td>
+          <td>{{ s.seuilMaximum }}</td>
+          <td class="actions">
+            <button class="btn-icon" (click)="openEdit(s)">Modifier</button>
+            <button class="btn-icon delete" *ngIf="isAdmin" (click)="confirmDelete(s)">Supprimer</button>
+          </td>
+        </tr>
+        <tr *ngIf="seuils.length === 0">
+          <td colspan="5" class="empty">Aucun seuil configuré</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <span class="kicker">{{ isEditMode ? 'Modification' : 'Nouveau seuil' }}</span>
+    <h2>{{ isEditMode ? 'Modifier le seuil' : 'Ajouter un seuil' }}</h2>
+
+    <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <div class="form-field">
+      <label>Article *</label>
+      <select [(ngModel)]="current.articleId" name="articleId">
+        <option [ngValue]="0">Sélectionner...</option>
+        <option *ngFor="let a of articles" [ngValue]="a.id">{{ a.nom }}</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Entrepôt *</label>
+      <select [(ngModel)]="current.entrepotId" name="entrepotId">
+        <option [ngValue]="0">Sélectionner...</option>
+        <option *ngFor="let e of entrepots" [ngValue]="e.id">{{ e.nom }}</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Seuil minimum</label>
+      <input type="number" [(ngModel)]="current.seuilMinimum" name="seuilMinimum" />
+    </div>
+    <div class="form-field">
+      <label>Seuil maximum</label>
+      <input type="number" [(ngModel)]="current.seuilMaximum" name="seuilMaximum" />
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="closeModal()" [disabled]="isSaving">Annuler</button>
+      <button class="btn-primary" (click)="save()" [disabled]="isSaving">
+        {{ isSaving ? 'Enregistrement...' : 'Enregistrer' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="cancelDelete()">
+  <div class="modal small" (click)="$event.stopPropagation()">
+    <span class="kicker">Confirmation</span>
+    <h2>Supprimer ce seuil ?</h2>
+    <p>Ce seuil d'alerte sera définitivement supprimé.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="cancelDelete()" [disabled]="isDeleting">Annuler</button>
+      <button class="btn-danger" (click)="delete()" [disabled]="isDeleting">Supprimer</button>
+    </div>
+  </div>
+</div>

@@ -8,7 +8,7 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './profile.html',
-  styleUrl: './profile.css',
+  styleUrl: './profile.scss',
 })
 export class Profile {
   username = '';

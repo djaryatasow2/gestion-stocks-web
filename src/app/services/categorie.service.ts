@@ -11,7 +11,7 @@ export interface CategorieDto {
 
 @Injectable({ providedIn: 'root' })
 export class CategorieService {
-  private http = inject(HttpClient);
+  constructor(private http: HttpClient) {}
   private apiUrl = '/api/categories';
 
   getAll(): Observable<CategorieDto[]> {

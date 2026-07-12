@@ -1,25 +1,27 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { UtilisateurService, UserDto } from '../../services/utilisateur.service';
-import { EntrepriseService, EntrepriseDto } from '../../services/entreprise.service';
+import { SeuilAlerteService, SeuilAlerteDto } from '../../services/seuil-alerte.service';
+import { ArticleService, ArticleDto } from '../../services/article.service';
+import { EntrepotService, EntrepotDto } from '../../services/entrepot.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-utilisateurs',
+  selector: 'app-seuils',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './utilisateurs.html',
-  styleUrl: './utilisateurs.scss',
+  templateUrl: './seuils.html',
+  styleUrl: './seuils.scss',
 })
-export class Utilisateurs implements OnInit {
-  utilisateurs: UserDto[] = [];
-  entreprises: EntrepriseDto[] = [];
-  roles = ['ADMIN', 'GESTIONNAIRE_STOCK', 'RESPONSABLE_ENTREPOT', 'MOBILE_USER'];
+export class Seuils implements OnInit {
+  seuils: SeuilAlerteDto[] = [];
+  articles: ArticleDto[] = [];
+  entrepots: EntrepotDto[] = [];
 
   showModal = false;
   isEditMode = false;
-  current: UserDto = this.empty();
-  toDelete: UserDto | null = null;
+  current: SeuilAlerteDto = this.empty();
+  toDelete: SeuilAlerteDto | null = null;
   showDeleteConfirm = false;
   isLoading = false;
   isSaving = false;
@@ -27,14 +29,21 @@ export class Utilisateurs implements OnInit {
   errorMessage = '';
 
   constructor(
-    private service: UtilisateurService,
-    private entrepriseService: EntrepriseService,
+    private service: SeuilAlerteService,
+    private articleService: ArticleService,
+    private entrepotService: EntrepotService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
+  get isAdmin(): boolean {
+    return this.authService.isAdmin();
+  }
+
   ngOnInit(): void {
     this.charger();
-    this.chargerEntreprises();
+    this.chargerArticles();
+    this.chargerEntrepots();
   }
 
   charger(): void {
@@ -42,30 +51,40 @@ export class Utilisateurs implements OnInit {
     this.errorMessage = '';
     this.service.getAll().subscribe({
       next: (data) => {
-        this.utilisateurs = data;
+        this.seuils = data;
         this.isLoading = false;
         this.cdr.detectChanges();
       },
       error: () => {
         this.isLoading = false;
-        this.errorMessage = 'Impossible de charger les utilisateurs.';
+        this.errorMessage = 'Impossible de charger les seuils d\'alerte.';
         this.cdr.detectChanges();
       },
     });
   }
 
-  chargerEntreprises(): void {
-    this.entrepriseService.getAll().subscribe({
+  chargerArticles(): void {
+    this.articleService.getAll().subscribe({
       next: (data) => {
-        this.entreprises = data;
+        this.articles = data;
         this.cdr.detectChanges();
       },
       error: () => {},
     });
   }
 
-  empty(): UserDto {
-    return { username: '', password: '', email: '', nom: '', prenom: '', role: 'GESTIONNAIRE_STOCK', active: true };
+  chargerEntrepots(): void {
+    this.entrepotService.getAll().subscribe({
+      next: (data) => {
+        this.entrepots = data;
+        this.cdr.detectChanges();
+      },
+      error: () => {},
+    });
+  }
+
+  empty(): SeuilAlerteDto {
+    return { seuilMinimum: 0, seuilMaximum: 0, articleId: 0, entrepotId: 0 };
   }
 
   openAdd(): void {
@@ -75,42 +94,37 @@ export class Utilisateurs implements OnInit {
     this.showModal = true;
   }
 
-  openEdit(u: UserDto): void {
+  openEdit(s: SeuilAlerteDto): void {
     this.isEditMode = true;
-    this.current = { ...u, password: '' };
+    this.current = { ...s };
     this.errorMessage = '';
     this.showModal = true;
   }
 
   closeModal(): void {
     this.showModal = false;
+    this.cdr.detectChanges();
   }
 
   save(): void {
-    if (!this.current.username?.trim() || !this.current.email?.trim()) {
-      this.errorMessage = 'Nom d\'utilisateur et email sont requis.';
+    if (!this.current.articleId || !this.current.entrepotId) {
+      this.errorMessage = 'Veuillez sélectionner un article et un entrepôt.';
       return;
     }
-    if (!this.isEditMode && !this.current.password?.trim()) {
-      this.errorMessage = 'Le mot de passe est requis à la création.';
+    if (this.current.seuilMinimum >= this.current.seuilMaximum) {
+      this.errorMessage = 'Le seuil minimum doit être inférieur au seuil maximum.';
       return;
     }
 
     this.isSaving = true;
     this.errorMessage = '';
 
-    const payload = { ...this.current };
-    if (this.isEditMode && !payload.password?.trim()) {
-      delete payload.password;
-    }
-
     if (this.isEditMode && this.current.id) {
-      this.service.update(this.current.id, payload).subscribe({
+      this.service.update(this.current.id, this.current).subscribe({
         next: () => {
           this.isSaving = false;
           this.charger();
           this.closeModal();
-          this.cdr.detectChanges();
         },
         error: () => {
           this.isSaving = false;
@@ -119,12 +133,11 @@ export class Utilisateurs implements OnInit {
         },
       });
     } else {
-      this.service.create(payload).subscribe({
+      this.service.create(this.current).subscribe({
         next: () => {
           this.isSaving = false;
           this.charger();
           this.closeModal();
-          this.cdr.detectChanges();
         },
         error: () => {
           this.isSaving = false;
@@ -135,14 +148,15 @@ export class Utilisateurs implements OnInit {
     }
   }
 
-  confirmDelete(u: UserDto): void {
-    this.toDelete = u;
+  confirmDelete(s: SeuilAlerteDto): void {
+    this.toDelete = s;
     this.showDeleteConfirm = true;
   }
 
   cancelDelete(): void {
     this.toDelete = null;
     this.showDeleteConfirm = false;
+    this.cdr.detectChanges();
   }
 
   delete(): void {
@@ -153,18 +167,20 @@ export class Utilisateurs implements OnInit {
         this.isDeleting = false;
         this.charger();
         this.cancelDelete();
-        this.cdr.detectChanges();
       },
       error: () => {
         this.isDeleting = false;
         this.errorMessage = 'Erreur lors de la suppression.';
         this.cancelDelete();
-        this.cdr.detectChanges();
       },
     });
   }
 
-  nomEntreprise(id?: number): string {
-    return this.entreprises.find((e) => e.id === id)?.nom || '—';
+  nomArticle(id: number): string {
+    return this.articles.find((a) => a.id === id)?.nom || '—';
+  }
+
+  nomEntrepot(id: number): string {
+    return this.entrepots.find((e) => e.id === id)?.nom || '—';
   }
 }

@@ -1,42 +1,35 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface UserDto {
-  id?: number;
+  id?: number; 
   username: string;
   password?: string;
   email: string;
-  nom: string;
-  prenom: string;
+  nom?: string;
+  prenom?: string;
   role: string;
-  active: boolean;
-  entrepriseId: number;
+  active?: boolean;
+  entrepriseId?: number;
 }
 
 @Injectable({ providedIn: 'root' })
 export class UtilisateurService {
-  private http = inject(HttpClient);
   private apiUrl = '/api/users';
+
+  constructor(private http: HttpClient) {}
 
   getAll(): Observable<UserDto[]> {
     return this.http.get<UserDto[]>(this.apiUrl);
   }
 
-  getById(id: number): Observable<UserDto> {
-    return this.http.get<UserDto>(`${this.apiUrl}/${id}`);
+  create(user: UserDto): Observable<UserDto> {
+    return this.http.post<UserDto>(this.apiUrl, user);
   }
 
-  getByEntreprise(entrepriseId: number): Observable<UserDto[]> {
-    return this.http.get<UserDto[]>(`${this.apiUrl}/entreprise/${entrepriseId}`);
-  }
-
-  create(u: UserDto): Observable<UserDto> {
-    return this.http.post<UserDto>(this.apiUrl, u);
-  }
-
-  update(id: number, u: UserDto): Observable<UserDto> {
-    return this.http.put<UserDto>(`${this.apiUrl}/${id}`, u);
+  update(id: number, user: UserDto): Observable<UserDto> {
+    return this.http.put<UserDto>(`${this.apiUrl}/${id}`, user);
   }
 
   delete(id: number): Observable<void> {

@@ -17,7 +17,7 @@ export interface MouvementStockDto {
 
 @Injectable({ providedIn: 'root' })
 export class MouvementsService {
-  private http = inject(HttpClient);
+  constructor(private http: HttpClient) {}
   private apiUrl = '/api/mouvements';
 
   getAll(): Observable<MouvementStockDto[]> {

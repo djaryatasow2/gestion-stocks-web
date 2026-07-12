@@ -15,7 +15,7 @@ export interface PrevisionDto {
 
 @Injectable({ providedIn: 'root' })
 export class PrevisionService {
-  private http = inject(HttpClient);
+  constructor(private http: HttpClient) {}
   private apiUrl = '/api/previsions';
 
   getAll(): Observable<PrevisionDto[]> {

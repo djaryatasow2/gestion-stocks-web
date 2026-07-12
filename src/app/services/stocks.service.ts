@@ -15,7 +15,7 @@ export interface StockDto {
 
 @Injectable({ providedIn: 'root' })
 export class StockService {
-  private http = inject(HttpClient);
+  constructor(private http: HttpClient) {}
   private apiUrl = '/api/stocks';
 
   getAll(): Observable<StockDto[]> {

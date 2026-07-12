@@ -18,7 +18,7 @@ export interface ArticleDto {
 
 @Injectable({ providedIn: 'root' })
 export class ArticleService {
-  private http = inject(HttpClient);
+  constructor(private http: HttpClient) {}
   private apiUrl = '/api/articles';
 
   getAll(): Observable<ArticleDto[]> {

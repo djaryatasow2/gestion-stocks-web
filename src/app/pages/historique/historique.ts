@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MouvementsService, MouvementStockDto } from '../../services/mouvements.service';
@@ -20,10 +20,13 @@ export class Historique implements OnInit {
 
   constructor(
     private mouvementService: MouvementsService,
-    private rapportService: RapportService
+    private rapportService: RapportService,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit(): void { this.charger(); }
+  ngOnInit(): void {
+    this.charger();
+  }
 
   charger(): void {
     this.isLoading = true;
@@ -32,10 +35,12 @@ export class Historique implements OnInit {
       next: (data: MouvementStockDto[]) => {
         this.mouvements = data;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.isLoading = false;
         this.errorMessage = 'Impossible de charger l\'historique.';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -67,11 +72,15 @@ export class Historique implements OnInit {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'historique.csv';
+        a.download = 'historique.xlsx';
         a.click();
         URL.revokeObjectURL(url);
+        this.cdr.detectChanges();
       },
-      error: () => { this.errorMessage = 'Erreur lors de l\'export.'; }
+      error: () => {
+        this.errorMessage = 'Erreur lors de l\'export.';
+        this.cdr.detectChanges();
+      }
     });
   }
 }

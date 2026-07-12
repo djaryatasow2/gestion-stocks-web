@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InventaireService, Inventaire, InventaireSession, LigneInventaire } from '../../services/inventaires.service';
@@ -24,16 +24,29 @@ export class Inventaires implements OnInit {
   currentSession: InventaireSession = this.emptySession();
   currentLigne: LigneInventaire = this.emptyLigne();
 
-  constructor(private service: InventaireService) {}
+  constructor(
+    private service: InventaireService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  ngOnInit(): void { this.charger(); }
+  ngOnInit(): void {
+    this.charger();
+  }
 
   charger(): void {
     this.isLoading = true;
     this.errorMessage = '';
     this.service.getAll().subscribe({
-      next: (data: Inventaire[]) => { this.inventaires = data; this.isLoading = false; },
-      error: () => { this.isLoading = false; this.errorMessage = 'Impossible de charger les inventaires.'; }
+      next: (data: Inventaire[]) => {
+        this.inventaires = data;
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.isLoading = false;
+        this.errorMessage = 'Impossible de charger les inventaires.';
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -49,32 +62,72 @@ export class Inventaires implements OnInit {
     return { quantitePhysique: 0, quantiteSysteme: 0, ecart: 0, remarques: '', inventaireId: 0, articleId: 0 };
   }
 
-  openAdd(): void { this.isEditMode = false; this.current = this.empty(); this.showModal = true; }
-  openEdit(i: Inventaire): void { this.isEditMode = true; this.current = { ...i }; this.showModal = true; }
-  closeModal(): void { this.showModal = false; }
+  openAdd(): void {
+    this.isEditMode = false;
+    this.current = this.empty();
+    this.showModal = true;
+  }
+
+  openEdit(i: Inventaire): void {
+    this.isEditMode = true;
+    this.current = { ...i };
+    this.showModal = true;
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+  }
 
   save(): void {
     if (this.isEditMode && this.current.id) {
       this.service.update(this.current.id, this.current).subscribe({
-        next: () => { this.charger(); this.closeModal(); },
-        error: () => { this.errorMessage = 'Erreur lors de la modification.'; }
+        next: () => {
+          this.charger();
+          this.closeModal();
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.errorMessage = 'Erreur lors de la modification.';
+          this.cdr.detectChanges();
+        }
       });
     } else {
       this.service.create(this.current).subscribe({
-        next: () => { this.charger(); this.closeModal(); },
-        error: () => { this.errorMessage = 'Erreur lors de la création.'; }
+        next: () => {
+          this.charger();
+          this.closeModal();
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.errorMessage = 'Erreur lors de la création.';
+          this.cdr.detectChanges();
+        }
       });
     }
   }
 
-  confirmDelete(i: Inventaire): void { this.toDelete = i; this.showDeleteConfirm = true; }
-  cancelDelete(): void { this.toDelete = null; this.showDeleteConfirm = false; }
+  confirmDelete(i: Inventaire): void {
+    this.toDelete = i;
+    this.showDeleteConfirm = true;
+  }
+
+  cancelDelete(): void {
+    this.toDelete = null;
+    this.showDeleteConfirm = false;
+  }
 
   delete(): void {
     if (this.toDelete?.id) {
       this.service.delete(this.toDelete.id).subscribe({
-        next: () => { this.charger(); this.cancelDelete(); },
-        error: () => { this.errorMessage = 'Erreur lors de la suppression.'; }
+        next: () => {
+          this.charger();
+          this.cancelDelete();
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.errorMessage = 'Erreur lors de la suppression.';
+          this.cdr.detectChanges();
+        }
       });
     }
   }
@@ -85,7 +138,9 @@ export class Inventaires implements OnInit {
     this.showSessionModal = true;
   }
 
-  closeSession(): void { this.showSessionModal = false; }
+  closeSession(): void {
+    this.showSessionModal = false;
+  }
 
   ajouterLigne(): void {
     this.currentLigne.ecart = this.currentLigne.quantitePhysique - this.currentLigne.quantiteSysteme;
@@ -103,8 +158,15 @@ export class Inventaires implements OnInit {
       return;
     }
     this.service.soumettreSession(this.currentSession).subscribe({
-      next: () => { this.charger(); this.closeSession(); },
-      error: () => { this.errorMessage = 'Erreur lors de la soumission de la session.'; }
+      next: () => {
+        this.charger();
+        this.closeSession();
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.errorMessage = 'Erreur lors de la soumission de la session.';
+        this.cdr.detectChanges();
+      }
     });
   }
 }

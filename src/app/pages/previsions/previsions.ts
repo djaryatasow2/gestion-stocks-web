@@ -32,7 +32,9 @@ export class Previsions implements OnInit, AfterViewInit {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit(): void { this.charger(); }
+  ngOnInit(): void {
+    this.charger();
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => this.creerChart(), 500);
@@ -46,11 +48,14 @@ export class Previsions implements OnInit, AfterViewInit {
         this.previsions = data;
         this.isLoading = false;
         this.cdr.markForCheck();
+        this.cdr.detectChanges();
+        this.creerChart();
       },
       error: () => {
         this.isLoading = false;
         this.errorMessage = 'Impossible de charger les prévisions.';
         this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }
     });
   }
@@ -67,32 +72,77 @@ export class Previsions implements OnInit, AfterViewInit {
     };
   }
 
-  openAdd(): void { this.isEditMode = false; this.current = this.empty(); this.showModal = true; }
-  openEdit(p: PrevisionDto): void { this.isEditMode = true; this.current = { ...p }; this.showModal = true; }
-  closeModal(): void { this.showModal = false; }
+  openAdd(): void {
+    this.isEditMode = false;
+    this.current = this.empty();
+    this.showModal = true;
+    this.cdr.detectChanges();
+  }
+
+  openEdit(p: PrevisionDto): void {
+    this.isEditMode = true;
+    this.current = { ...p };
+    this.showModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeModal(): void {
+    this.showModal = false;
+    this.cdr.detectChanges();
+  }
 
   save(): void {
     if (this.isEditMode && this.current.id) {
       this.service.update(this.current.id, this.current).subscribe({
-        next: () => { this.charger(); this.closeModal(); },
-        error: () => { this.errorMessage = 'Erreur lors de la modification.'; }
+        next: () => {
+          this.charger();
+          this.closeModal();
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.errorMessage = 'Erreur lors de la modification.';
+          this.cdr.detectChanges();
+        }
       });
     } else {
       this.service.create(this.current).subscribe({
-        next: () => { this.charger(); this.closeModal(); },
-        error: () => { this.errorMessage = 'Erreur lors de la création.'; }
+        next: () => {
+          this.charger();
+          this.closeModal();
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.errorMessage = 'Erreur lors de la création.';
+          this.cdr.detectChanges();
+        }
       });
     }
   }
 
-  confirmDelete(p: PrevisionDto): void { this.toDelete = p; this.showDeleteConfirm = true; }
-  cancelDelete(): void { this.toDelete = null; this.showDeleteConfirm = false; }
+  confirmDelete(p: PrevisionDto): void {
+    this.toDelete = p;
+    this.showDeleteConfirm = true;
+    this.cdr.detectChanges();
+  }
+
+  cancelDelete(): void {
+    this.toDelete = null;
+    this.showDeleteConfirm = false;
+    this.cdr.detectChanges();
+  }
 
   delete(): void {
     if (this.toDelete?.id) {
       this.service.delete(this.toDelete.id).subscribe({
-        next: () => { this.charger(); this.cancelDelete(); },
-        error: () => { this.errorMessage = 'Erreur lors de la suppression.'; }
+        next: () => {
+          this.charger();
+          this.cancelDelete();
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.errorMessage = 'Erreur lors de la suppression.';
+          this.cdr.detectChanges();
+        }
       });
     }
   }
